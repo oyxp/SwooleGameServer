@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+//常量定义
+!defined('DS') && define('DS', DIRECTORY_SEPARATOR);
+!defined('ROOT_PATH') && define('ROOT_PATH', __DIR__ . DS);
+!defined('APP_PATH') && define('APP_PATH', ROOT_PATH . 'app' . DS);
+!defined('CONFIG_PATH') && define('CONFIG_PATH', ROOT_PATH . 'config' . DS);
+!defined('RUNTIME_PATH') && define('RUNTIME_PATH', ROOT_PATH . 'runtime' . DS);
+
+//自动加载
+require ROOT_PATH . 'vendor/autoload.php';
+require APP_PATH . 'common.php';
+
+use Symfony\Component\Console\Application;
+use app\command\StartServer;
+
+$application = new Application();
+$application->add(new StartServer());
+$application->run();
