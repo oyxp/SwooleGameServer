@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\command;
+namespace gs\console\command;
 
 
 use app\App;
@@ -13,14 +13,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StartServer extends Command
+/**
+ * Class Start
+ * @package gs\console\command
+ */
+class Start extends Command
 {
-    public function __construct(string $name = null)
-    {
-        parent::__construct($name);
-        Annotation::getInstance();
-    }
-
     protected function configure()
     {
         $this->setName('app:start')
@@ -36,28 +34,12 @@ class StartServer extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $config = Config::getInstance()->pull('server');
-        $this->initRuntimeDir($config['setting']);
         $server = new \Swoole\WebSocket\Server($config['host'], $config['port'], $config['mode'], $config['sock_type']);
         $server->set($config['setting']);
         App::$swooleServer = $server;
         //设置回调函数
         $this->setServerCallback($server, $config['enable_http']);
         $server->start();
-    }
-
-    /**初始化log dir
-     * @param array $config
-     */
-    protected function initRuntimeDir(array $config)
-    {
-        $log_dir = pathinfo($config['log_file'], PATHINFO_DIRNAME);
-        if (!is_dir($log_dir)) {
-            mkdir($log_dir, 0755, true);
-        }
-        $temp_dir = pathinfo($config['task_tmpdir'], true);
-        if (!is_dir($temp_dir)) {
-            mkdir($temp_dir, 0755, true);
-        }
     }
 
     /**
@@ -94,6 +76,4 @@ class StartServer extends Command
 
         });
     }
-
-
 }

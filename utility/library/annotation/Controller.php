@@ -1,6 +1,6 @@
 <?php
 
-namespace annotation;
+namespace gs\annotation;
 
 use Doctrine\Common\Annotations\Annotation\Target;
 

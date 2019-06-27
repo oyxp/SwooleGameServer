@@ -12,9 +12,5 @@
 require ROOT_PATH . 'vendor/autoload.php';
 require APP_PATH . 'common.php';
 
-use Symfony\Component\Console\Application;
-use app\command\StartServer;
+\gs\console\Console::getInstance()->run();
 
-$application = new Application();
-$application->add(new StartServer());
-$application->run();

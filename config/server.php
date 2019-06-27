@@ -19,7 +19,7 @@ return [
         'ssl_key_file'             => env('SSL_KEY_FILE', ''),
         'task_ipc_mode'            => env('TASK_IPC_MODE', 1),
         'message_queue_key'        => env('MESSAGE_QUEUE_KEY', 0x70001001),
-        'task_tmpdir'              => env('TASK_TMPDIR', '/tmp'),
+        'task_tmpdir'              => env('TASK_TMPDIR', RUNTIME_PATH . 'temp'),
         'task_enable_coroutine'    => env('TASK_ENABLE_CO', true),
         'heartbeat_idle_time'      => 300, // 300没有心跳时则断开
         'heartbeat_check_interval' => 60,

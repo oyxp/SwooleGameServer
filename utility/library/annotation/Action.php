@@ -1,6 +1,6 @@
 <?php
 
-namespace annotation;
+namespace gs\annotation;
 
 /**
  * Class Action

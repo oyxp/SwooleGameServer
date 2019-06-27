@@ -13,4 +13,9 @@ trait Singleton
         }
         return self::$instance;
     }
+
+    private function __clone()
+    {
+        // TODO: Implement __clone() method.
+    }
 }
