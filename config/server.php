@@ -2,7 +2,7 @@
 
 return [
     'host'        => '0.0.0.0',
-    'port'        => 80,
+    'port'        => 8080,
     'mode'        => SWOOLE_PROCESS,
     'sock_type'   => SWOOLE_SOCK_TCP,
     'enable_http' => env('ENABLE_HTTP', true),

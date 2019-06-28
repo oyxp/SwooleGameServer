@@ -8,22 +8,22 @@ namespace gs\annotation;
  * @Annotation
  * @Target("METHOD")
  */
-class Action
+class Command
 {
-    private $name;
+    private $code;
 
     public function __construct(array $values)
     {
         if (isset($values['value'])) {
-            $this->name = $values['value'];
+            $this->code = $values['value'];
         }
-        if (isset($values['name'])) {
-            $this->name = $values['name'];
+        if (isset($values['code'])) {
+            $this->code = $values['code'];
         }
     }
 
-    public function getName()
+    public function getCode()
     {
-        return $this->name;
+        return $this->code;
     }
 }

@@ -6,12 +6,16 @@ namespace gs\console\command;
 
 use app\App;
 use gs\Annotation;
+use gs\AppException;
+use gs\CmdParser;
 use gs\Config;
 use gs\Session;
 use Swoole\Coroutine;
+use Swoole\WebSocket\Frame;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use traits\Response;
 
 /**
  * Class Start
@@ -19,6 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Start extends Command
 {
+    use Response;
+
     protected function configure()
     {
         $this->setName('app:start')
@@ -48,14 +54,34 @@ class Start extends Command
      */
     protected function setServerCallback(\Swoole\WebSocket\Server $server, $enable_http = true)
     {
-        $server->on('message', function (\Swoole\WebSocket\Server $server, $frame) {
-            //全协程 1、记录所有执行的redis命令、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据
+        $server->on('message', function (\Swoole\WebSocket\Server $server, Frame $frame) {
+            //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据
             go(function () use ($server, $frame) {
-                Coroutine::getContext()->session = new Session($frame);
+                //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
+                $data = CmdParser::decode($frame->data);
+                if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions($data['c']))) {
+                    return;
+                }
                 try {
-//                    $object =
+                    Coroutine::getContext()->session = new Session($frame->fd, $data);
+                    $ret = call_user_func([new $caller['class'](), $caller['method']]);
+                    $server->push($frame->fd, CmdParser::encode($ret), WEBSOCKET_OPCODE_BINARY);
+                } catch (AppException $appException) {
+                    //做redis callback ,取消数据库入库操作
+                    $server->push($frame->fd, CmdParser::encode($this->error(
+                        $appException->getCode(),
+                        $data['c'],
+                        $appException->getMessage(),
+                        $appException->getData()
+                    )), WEBSOCKET_OPCODE_BINARY);
                 } catch (\Throwable $throwable) {
+                    //做redis callback，取消数据库入库操作
 
+                    $server->push($frame->fd, CmdParser::encode($this->error(
+                        -100,
+                        $data['c'],
+                        'system error.'
+                    )), WEBSOCKET_OPCODE_BINARY);
                 }
             });
         });

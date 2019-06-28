@@ -4,6 +4,10 @@
 namespace gs;
 
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use gs\annotation\Command;
+use gs\helper\ComposerHelper;
 use traits\Singleton;
 
 class Annotation
@@ -12,7 +16,7 @@ class Annotation
     /**
      * @var array
      */
-    protected $definitions = [];
+    private $definitions = [];
     /**
      * @var array
      */
@@ -30,15 +34,30 @@ class Annotation
         'package'
     ];
 
+    public function __construct()
+    {
+        //这里进行命令扫描和解析
+        AnnotationRegistry::registerLoader(function ($class) {
+            if (class_exists($class) || interface_exists($class)) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     /**
      * @throws \Doctrine\Common\Annotations\AnnotationException
      * @throws \ReflectionException
      */
-    public function initDefinitions()
+    public function collectDefinitions()
     {
         foreach ($this->scanNamespaces as $namespace) {
-            $dir = str_replace('\\', '/', EASYSWOOLE_ROOT . DIRECTORY_SEPARATOR . $namespace);
+            $dir = realpath(str_replace('\\', '/', ComposerHelper::getDirByNamespace($namespace)));
+            if (false === $dir) {
+                continue;
+            }
             $classes = $this->scanPhpFile($dir, $namespace);
+            var_dump($classes);
             $this->parseAnnotations($classes);
         }
     }
@@ -59,41 +78,33 @@ class Annotation
             $reader = $this->addIgnoredNames($reader);
             $reflectionClass = new \ReflectionClass($class);
 
-            //解析类
-            $command = $reader->getClassAnnotation($reflectionClass, Command::class);
-            // 没有类注解不解析其它注解
-            if (empty($command) || !($command instanceof Command)) {
-                continue;
-            }
             // 解析方法
-//            $publicMethods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
-//            $methods = [];
-//            foreach ($publicMethods as $method) {
-//                if ($method->isStatic()) {
-//                    continue;
-//                }
-//                // 解析方法注解
-//                $sub_command = $reader->getMethodAnnotation($method, SubCommand::class);
-//                if (empty($sub_command) || !($sub_command instanceof SubCommand)) {
-//                    continue;
-//                }
-//                $methods[$sub_command->getScmd()] = $method->getName();
-//            }
-            //当方法不为空时，则存储对应关系
-//            if (!empty($methods)) {
-            $this->definitions[$command->getCmd()] = [
-                'class' => $class,
-//                    'method' => $methods,
-            ];
-//            }
+            $publicMethods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
+            foreach ($publicMethods as $method) {
+                if ($method->isStatic()) {
+                    continue;
+                }
+                // 解析方法注解
+                $sub_command = $reader->getMethodAnnotation($method, Command::class);
+                if (empty($sub_command) || !($sub_command instanceof Command)) {
+                    continue;
+                }
+                $this->definitions[$sub_command->getCode()] = [
+                    'class'  => $method->getDeclaringClass()->getName(),
+                    'method' => $method->getName(),
+                ];
+            }
         }
     }
 
     /**获取注解定义
      * @return array
      */
-    public function getDefinitions()
+    public function getDefinitions($code = null)
     {
+        if (!is_null($code)) {
+            return $this->definitions[$code] ?? false;
+        }
         return $this->definitions;
     }
 
@@ -110,7 +121,6 @@ class Annotation
         if (!is_dir($dir)) {
             return [];
         }
-
         $iterator = new \RecursiveDirectoryIterator($dir);
         $files = new \RecursiveIteratorIterator($iterator);
 

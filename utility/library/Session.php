@@ -4,20 +4,16 @@
 namespace gs;
 
 
-use Swoole\WebSocket\Frame;
-
 class Session
 {
     private $session = [];
     private $fd;
-    private $frame;
     private $data;
 
-    public function __construct(Frame $frame)
+    public function __construct(int $fd, $data)
     {
-        $this->fd = $frame->fd;
-        $this->frame = $frame;
-        $this->data = $frame->data;
+        $this->fd = $fd;
+        $this->data = $data;
     }
 
     public function set($name, $value)
@@ -38,16 +34,6 @@ class Session
     public function getFd(): ?int
     {
         return $this->fd;
-    }
-
-    public function setFrame($frame)
-    {
-        $this->frame = $frame;
-    }
-
-    public function getFrame(): ?string
-    {
-        return $this->frame;
     }
 
 }

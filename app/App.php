@@ -3,6 +3,7 @@
 
 namespace app;
 
+use gs\Annotation;
 use gs\Config;
 use traits\Singleton;
 
@@ -21,6 +22,11 @@ class App
 
     public function __construct()
     {
+        //初始化公共函数库
+        require_once LIB_PATH . 'helper.php';
+        require_once APP_PATH . 'common.php';
+
+        //初始化配置
         $this->config = Config::getInstance();
     }
 
@@ -34,9 +40,13 @@ class App
         $this->collectAnnotation();
     }
 
+    /**收集注解
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \ReflectionException
+     */
     public function collectAnnotation()
     {
-
+        Annotation::getInstance()->collectDefinitions();
     }
 
     /**
