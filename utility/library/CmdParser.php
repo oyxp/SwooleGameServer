@@ -13,7 +13,7 @@ class CmdParser
      */
     public static function decode($data, $func = 'msgpack_unpack')
     {
-        return $func($data);
+        return $func($data, true);
     }
 
 

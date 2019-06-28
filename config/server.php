@@ -6,6 +6,8 @@ return [
     'mode'        => SWOOLE_PROCESS,
     'sock_type'   => SWOOLE_SOCK_TCP,
     'enable_http' => env('ENABLE_HTTP', true),
+//    'opcode'      => WEBSOCKET_OPCODE_BINARY,
+    'opcode'      => WEBSOCKET_OPCODE_TEXT,
     'setting'     => [
         'worker_num'               => env('WORKER_NUM', 10),
         'max_request'              => env('MAX_REQUEST', 10000),

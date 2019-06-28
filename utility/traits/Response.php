@@ -3,9 +3,6 @@
 
 namespace traits;
 
-
-use gs\AppException;
-
 trait Response
 {
     public function success($data = null, $msg = '', $cmd = null, $code = 0)
