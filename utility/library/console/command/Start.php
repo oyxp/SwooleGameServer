@@ -9,6 +9,7 @@ use gs\Annotation;
 use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
+use gs\RequestContext;
 use gs\Session;
 use Swoole\Coroutine;
 use Swoole\WebSocket\Frame;
@@ -63,11 +64,17 @@ class Start extends Command
                     return;
                 }
                 try {
-                    Coroutine::getContext()->session = new Session($frame->fd, $data);
-                    $ret = call_user_func([new $caller['class'](), $caller['method']]);
+                    $context = new RequestContext($frame->fd, $data);
+                    $context->setController($caller['class']);
+                    $context->setAction($caller['method']);
+                    Coroutine::getContext()->context = $context;
+                    $object = new $caller['class']($context);
+                    if (method_exists($object, 'prepare')) {
+                        call_user_func_array([$object, 'prepare'], [$server]);
+                    }
+                    $ret = call_user_func([$object, $caller['method']]);
                     $server->push($frame->fd, CmdParser::encode($ret), WEBSOCKET_OPCODE_BINARY);
                 } catch (AppException $appException) {
-                    //做redis callback ,取消数据库入库操作
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         $appException->getCode(),
                         $data['c'],
@@ -75,8 +82,6 @@ class Start extends Command
                         $appException->getData()
                     )), WEBSOCKET_OPCODE_BINARY);
                 } catch (\Throwable $throwable) {
-                    //做redis callback，取消数据库入库操作
-
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         -100,
                         $data['c'],
