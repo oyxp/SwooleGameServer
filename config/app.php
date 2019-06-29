@@ -7,4 +7,6 @@ return [
     'scan_namespace'   => [
 
     ],//要扫描注解的目录
+
+    'error_handle' => '',
 ];

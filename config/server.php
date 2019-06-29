@@ -17,6 +17,7 @@ return [
         'daemonize'                => env('DAEMONIZE', 0),
         'dispatch_mode'            => env('DISPATCH_MODE', 2),
         'log_file'                 => env('LOG_FILE', RUNTIME_PATH . 'log/swoole.log'),
+        'log_level'                => SWOOLE_LOG_DEBUG,// 0 => SWOOLE_LOG_DEBUG 1 => SWOOLE_LOG_TRACE 2 => SWOOLE_LOG_INFO 3 => SWOOLE_LOG_NOTICE 4 => SWOOLE_LOG_WARNING 5 => SWOOLE_LOG_ERROR  6 => SWOOLE_LOG_NONE
         'task_worker_num'          => env('TASK_WORKER_NUM', 1),
         'package_max_length'       => env('PACKAGE_MAX_LENGTH', 2048),
         'open_http2_protocol'      => env('OPEN_HTTP2_PROTOCOL', false),
