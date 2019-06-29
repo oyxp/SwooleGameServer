@@ -69,7 +69,7 @@ class Start extends Command
         $server->on('start', function (Server $server) use ($config) {
             //重命名进程
             if (PHP_OS != 'Darwin') {
-                cli_set_process_title($config['name']);
+                cli_set_process_title($config['name'] . ' master process');
             }
             //触发自定义onstart回调
             $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_START);
@@ -79,14 +79,29 @@ class Start extends Command
             }
             return true;
         });
+
+
+        $server->on('managerStart', function (Server $server) use ($config) {
+            //重命名进程
+            if (PHP_OS != 'Darwin') {
+                cli_set_process_title($config['name'] . ' manager process');
+            }
+            //触发自定义onstart回调
+            $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_MANAGER_START);
+            foreach ($events as $event) {
+                $object = new $event();
+                method_exists($object, 'handle') && call_user_func_array([$object, 'handle'], [$server]);
+            }
+        });
+
         //自定义workerstart
         $server->on('workerStart', function (Server $server, int $worker_id) use ($config) {
             //主要是做重命名worker进程名
             if (PHP_OS != 'Darwin') {
                 if ($server->taskworker) {
-                    cli_set_process_title($config['name'] . ' task worker');
+                    cli_set_process_title($config['name'] . ' task worker process');
                 } else {
-                    cli_set_process_title($config['name'] . ' worker');
+                    cli_set_process_title($config['name'] . ' worker process');
                 }
             }
             //触发自定义onworker start回调
