@@ -16,6 +16,7 @@
     }
   },
   "require": {
+    "php": ">=7.3",
     "symfony/console": "^4.3",
     "vlucas/phpdotenv": "^3.4",
     "doctrine/annotations": "^1.6"

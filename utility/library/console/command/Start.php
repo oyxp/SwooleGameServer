@@ -45,7 +45,7 @@ class Start extends Command
         $server->set($config['setting']);
         App::$swooleServer = $server;
         //设置回调函数
-        $this->setServerCallback($server, $config['enable_http']);
+        $this->setServerCallback($server, $config);
         $server->start();
     }
 
@@ -59,12 +59,10 @@ class Start extends Command
             //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据 集群要求lua脚本操作的key必须在同一个槽，可以使用{key}方式手动分配
             go(function () use ($server, $frame, $config) {
                 //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
-                $data = CmdParser::decode($frame->data, 'json_decode');
-                var_dump($data);
+                $data = CmdParser::decode($frame->data, $config['pkg_decode_func']);
                 if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions($data['c']))) {
                     return;
                 }
-                var_dump($caller);
                 try {
                     $context = new RequestContext($frame->fd, $data);
                     $context->setController($caller['class']);
@@ -76,20 +74,20 @@ class Start extends Command
                     }
                     $ret = call_user_func([$object, $caller['method']]);
                     $ret['c'] = $data['c'];
-                    $server->push($frame->fd, CmdParser::encode($ret, 'json_encode'));
+                    $server->push($frame->fd, CmdParser::encode($ret, $config['pkg_encode_func']), $config['opcode']);
                 } catch (AppException $appException) {
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         $appException->getCode(),
                         $data['c'],
                         $appException->getMessage(),
                         $appException->getData()
-                    )), Config::getInstance()->get('server.'));
+                    ), $config['pkg_encode_func']), $config['opcode']);
                 } catch (\Throwable $throwable) {
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         -100,
                         $data['c'],
                         'system error.'
-                    )));
+                    ), $config['pkg_encode_func']), $config['opcode']);
                 }
             });
         });

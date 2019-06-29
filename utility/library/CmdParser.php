@@ -13,7 +13,10 @@ class CmdParser
      */
     public static function decode($data, $func = 'msgpack_unpack')
     {
-        return $func($data, true);
+        if ($func == 'json_decode') {
+            return $func($data, true);
+        }
+        return $func($data);
     }
 
 

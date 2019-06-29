@@ -10,6 +10,7 @@ namespace app\websocket;
 
 
 use gs\annotation\Command;
+use gs\AppException;
 use gs\WebsocketController;
 
 class Index extends WebsocketController
@@ -19,6 +20,16 @@ class Index extends WebsocketController
      */
     public function index()
     {
+        var_dump(__METHOD__);
         return $this->success($this->getRequestContext()->getFd());
+    }
+
+    /**
+     * @Command(101)
+     * @throws AppException
+     */
+    public function testException()
+    {
+        throw new AppException(1000);
     }
 }
