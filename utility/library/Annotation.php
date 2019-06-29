@@ -7,7 +7,10 @@ namespace gs;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
+use gs\annotation\OnStart;
 use gs\helper\ComposerHelper;
+use interfaces\CustomEvent;
+use interfaces\SwooleEvent;
 use traits\Singleton;
 
 class Annotation
@@ -21,7 +24,9 @@ class Annotation
      * @var array
      */
     protected $scanNamespaces = [
-        'app\websocket'
+        'app\\websocket',
+        'app\\event',
+        'app\\task',
     ];
     /**
      * @var array
@@ -43,6 +48,7 @@ class Annotation
             }
             return false;
         });
+        $this->scanNamespaces = array_unique(array_merge($this->scanNamespaces, Config::getInstance()->get('scan_namespace')));
     }
 
     /**
@@ -59,6 +65,7 @@ class Annotation
             $classes = $this->scanPhpFile($dir, $namespace);
             $this->parseAnnotations($classes);
         }
+        var_dump($this->definitions);
     }
 
     /**
@@ -77,6 +84,17 @@ class Annotation
             $reader = $this->addIgnoredNames($reader);
             $reflectionClass = new \ReflectionClass($class);
 
+            //解析类名
+            $class_annos = $reader->getClassAnnotations($reflectionClass);
+            if (!empty($class_annos)) {
+                foreach ($class_annos as $anno) {
+                    if ($reflectionClass->implementsInterface(SwooleEvent::class)) {
+                        $this->definitions['swoole_event'][$anno->getEventName()] = $reflectionClass->getName();
+                    } else if ($reflectionClass->implementsInterface(CustomEvent::class)) {
+                        $this->definitions['custom_event'][$anno->getEventName()][] = $reflectionClass->getName();
+                    }
+                }
+            }
             // 解析方法
             $publicMethods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
             foreach ($publicMethods as $method) {
@@ -88,7 +106,7 @@ class Annotation
                 if (empty($sub_command) || !($sub_command instanceof Command)) {
                     continue;
                 }
-                $this->definitions[$sub_command->getCode()] = [
+                $this->definitions['command'][$sub_command->getCode()] = [
                     'class'  => $method->getDeclaringClass()->getName(),
                     'method' => $method->getName(),
                 ];
@@ -97,12 +115,24 @@ class Annotation
     }
 
     /**获取注解定义
-     * @return array
+     * @return mixed
      */
-    public function getDefinitions($code = null)
+    public function getDefinitions($name = null)
     {
-        if (!is_null($code)) {
-            return $this->definitions[$code] ?? false;
+        if (!is_null($name)) {
+            if (!strpos($name, '.')) {
+                return $this->definitions[$name] ?? false;
+            }
+            $value = explode('.', $name);
+            $definitions = $this->definitions;
+            while ($key = array_shift($value)) {
+                if (isset($definitions[$key])) {
+                    $definitions = $definitions[$key];
+                } else {
+                    return null;
+                }
+            }
+            return $definitions;
         }
         return $this->definitions;
     }

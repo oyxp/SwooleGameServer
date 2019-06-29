@@ -10,6 +10,7 @@ use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
 use gs\RequestContext;
+use interfaces\CustomEvent;
 use Swoole\Coroutine;
 use Swoole\WebSocket\Frame;
 use Symfony\Component\Console\Command\Command;
@@ -54,12 +55,29 @@ class Start extends Command
      */
     protected function setServerCallback(\Swoole\WebSocket\Server $server, $config)
     {
+        /**
+         *这里存储master pid和manager pid
+         */
+        $server->on('start', function (\Swoole\WebSocket\Server $server) use ($config) {
+            //存放masterpid和 manager pid
+            file_put_contents($config['pid_file'], $server->master_pid . ',' . $server->manager_pid);
+            if (PHP_OS == 'Linux') {
+                cli_set_process_title($config['name']);
+            }
+            //触发自定义onstart回调
+            $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_START);
+            foreach ($events as $event) {
+                $object = new $event();
+                method_exists($object, 'handle') && call_user_func_array([$object, 'handle'], [$server]);
+            }
+            return true;
+        });
         $server->on('message', function (\Swoole\WebSocket\Server $server, Frame $frame) use ($config) {
             //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据 集群要求lua脚本操作的key必须在同一个槽，可以使用{key}方式手动分配
             go(function () use ($server, $frame, $config) {
                 //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
                 $data = CmdParser::decode($frame->data, $config['pkg_decode_func']);
-                if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions($data['c']))) {
+                if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions('command.' . $data['c']))) {
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         -100,
                         $data['c'],
@@ -111,5 +129,13 @@ class Start extends Command
         $server->on('finish', function (\swoole_server $serv, int $task_id, string $data) {
 
         });
+        //这里注册其他事件
+        $events = Annotation::getInstance()->getDefinitions('swoole_event');
+        if (empty($events)) {
+            return;
+        }
+        foreach ($events as $event => $class) {
+            $server->on($event, [new $class(), 'handle']);
+        }
     }
 }

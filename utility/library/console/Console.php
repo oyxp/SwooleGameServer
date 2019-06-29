@@ -18,6 +18,11 @@ class Console
 {
     use Singleton;
 
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
     public function run()
     {
         //app init

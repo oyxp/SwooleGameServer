@@ -14,6 +14,10 @@ class App
      * @var
      */
     public static $swooleServer;
+    /**所有单例对象
+     * @var array
+     */
+    private static $instances = [];
 
     /**
      * @var Config
@@ -33,6 +37,8 @@ class App
 
     /**
      *app init
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \ReflectionException
      */
     public function run()
     {
@@ -71,5 +77,20 @@ class App
     public function registerErrorExceptionHandle()
     {
 //        set_error_handler();
+    }
+
+    /**获取对象
+     * @param $class
+     * @param bool $newInstance
+     * @param mixed ...$args
+     * @return mixed
+     */
+    public function makeInstance($class, $newInstance = false, ...$args)
+    {
+        if (!$newInstance && isset(self::$instances[$class])) {
+            return self::$instances[$class];
+        }
+        self::$instances[$class] = new $class($args);
+        return self::$instances[$class];
     }
 }
