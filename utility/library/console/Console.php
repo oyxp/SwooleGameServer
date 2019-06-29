@@ -9,6 +9,7 @@
 namespace gs\console;
 
 use app\App;
+use gs\console\command\Reload;
 use gs\console\command\Stop;
 use traits\Singleton;
 use gs\console\command\Start;
@@ -31,6 +32,7 @@ class Console
         $application = new Application();
         $application->add(new Start());
         $application->add(new Stop());
+        $application->add(new Reload());
         $application->run();
     }
 }

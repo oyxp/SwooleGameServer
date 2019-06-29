@@ -12,6 +12,7 @@ use gs\Config;
 use gs\RequestContext;
 use interfaces\CustomEvent;
 use Swoole\Coroutine;
+use Swoole\Process;
 use Swoole\WebSocket\Frame;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,7 +31,7 @@ class Start extends Command
     protected function configure()
     {
         $this->setName('app:start')
-            ->addOption('daemonize', 'daemonize', InputOption::VALUE_OPTIONAL, 'run in daemonize', false)
+            ->addArgument('d')
             ->setDescription('start sever')
             ->setHelp('start websocket server');
     }
@@ -42,9 +43,13 @@ class Start extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($this->isRunning()) {
+            $output->writeln('<error>The server is running!</error>');
+            return;
+        }
         $config = Config::getInstance()->pull('server');
         $server = new \Swoole\WebSocket\Server($config['host'], $config['port'], $config['mode'], $config['sock_type']);
-        if ($daemonize = $input->getOption('daemonize')) {
+        if ($input->getArgument('d')) {
             $config['setting']['daemonize'] = true;
         }
         $server->set($config['setting']);
@@ -142,5 +147,18 @@ class Start extends Command
         foreach ($events as $event => $class) {
             $server->on($event, [new $class(), 'handle']);
         }
+    }
+
+    /**判断服务正在运行
+     * @return bool
+     */
+    protected function isRunning(): bool
+    {
+        $pid_file = Config::getInstance()->get('server.pid_file');
+        if (!file_exists($pid_file)) {
+            return false;
+        }
+        list($master_pid, $manager_pid) = explode(',', file_get_contents($pid_file));
+        return Process::kill($master_pid, 0) && Process::kill($manager_pid, 0);
     }
 }
