@@ -35,9 +35,9 @@ class Config
      */
     public function get($key, $default = null)
     {
-        //非多级配置直接返回
+        //非多级配置则获取app的配置，默认获取app下的配置
         if (!strpos($key, '.')) {
-            return isset($this->config[$key]) ? $this->config[$key] : $default;
+            return isset($this->config['app'][$key]) ? $this->config['app'][$key] : $default;
         }
         $names = explode('.', $key);
         $config = $this->config;

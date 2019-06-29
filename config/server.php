@@ -5,10 +5,10 @@ return [
     'port'            => 8080,
     'mode'            => SWOOLE_PROCESS,
     'sock_type'       => SWOOLE_SOCK_TCP,
-    'enable_http'     => env('ENABLE_HTTP', true),
-    'opcode'          => WEBSOCKET_OPCODE_TEXT,//WEBSOCKET_OPCODE_BINARY
-    'pkg_encode_func' => 'json_encode',
-    'pkg_decode_func' => 'json_decode',
+    'enable_http'     => env('ENABLE_HTTP', true),//是否开启http
+    'opcode'          => WEBSOCKET_OPCODE_TEXT,//WEBSOCKET_OPCODE_BINARY 可以发送text或二进制
+    'pkg_encode_func' => 'json_encode',//打包函数
+    'pkg_decode_func' => 'json_decode',//解包函数
     'setting'         => [
         'worker_num'               => env('WORKER_NUM', 10),
         'max_request'              => env('MAX_REQUEST', 10000),

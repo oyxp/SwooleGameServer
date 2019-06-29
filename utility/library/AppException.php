@@ -3,16 +3,18 @@
 
 namespace gs;
 
-
-use Throwable;
-
+/**
+ * Class AppException
+ * @package gs
+ */
 class AppException extends \Exception
 {
     private $data;
 
-    public function __construct($code, $msg_param = [], $data = null)
+    public function __construct($code, $msg_param = [], $data = null, $lang = null)
     {
-        $message = '';
+        $message = Lang::getInstance()->get($code, $msg_param, $lang);
+        $this->data = $data;
         parent::__construct($message, $code);
     }
 

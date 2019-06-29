@@ -28,6 +28,7 @@ class App
 
         //初始化配置
         $this->config = Config::getInstance();
+        date_default_timezone_set($this->config->get('default_timezone'));
     }
 
     /**

@@ -10,7 +10,6 @@ use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
 use gs\RequestContext;
-use gs\Session;
 use Swoole\Coroutine;
 use Swoole\WebSocket\Frame;
 use Symfony\Component\Console\Command\Command;
@@ -61,6 +60,11 @@ class Start extends Command
                 //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
                 $data = CmdParser::decode($frame->data, $config['pkg_decode_func']);
                 if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions($data['c']))) {
+                    $server->push($frame->fd, CmdParser::encode($this->error(
+                        -100,
+                        $data['c'],
+                        'unsupport cmd.'
+                    ), $config['pkg_encode_func']), $config['opcode']);
                     return;
                 }
                 try {
