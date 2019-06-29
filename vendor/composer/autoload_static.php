@@ -37,6 +37,7 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Service\\' => 26,
             'Symfony\\Component\\Console\\' => 26,
+            'Swoole\\IDEHelper\\' => 17,
         ),
         'P' => 
         array (
@@ -90,6 +91,10 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         'Symfony\\Component\\Console\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/console',
+        ),
+        'Swoole\\IDEHelper\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/swoole/ide-helper/src',
         ),
         'Psr\\Container\\' => 
         array (

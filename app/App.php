@@ -61,13 +61,20 @@ class App
      */
     public function initLogAndTempDir()
     {
+        //创建日志目录
         $log_dir = pathinfo($this->config->get('server.setting.log_file'), PATHINFO_DIRNAME);
         if (!is_dir($log_dir)) {
             mkdir($log_dir, 0755, true);
         }
-        $temp_dir = pathinfo($this->config->get('server.setting.task_tmpdir'), true);
+        //创建临时目录
+        $temp_dir = pathinfo($this->config->get('server.setting.task_tmpdir'), PATHINFO_DIRNAME);
         if (!is_dir($temp_dir)) {
             mkdir($temp_dir, 0755, true);
+        }
+        //创建pid存放目录
+        $pid_dir = pathinfo($this->config->get('server.setting.pid_file'), PATHINFO_DIRNAME);
+        if (!is_dir($pid_dir)) {
+            mkdir($pid_dir, 0755, true);
         }
     }
 

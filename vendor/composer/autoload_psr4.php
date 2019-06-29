@@ -16,6 +16,7 @@ return array(
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
     'Symfony\\Contracts\\Service\\' => array($vendorDir . '/symfony/service-contracts'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
+    'Swoole\\IDEHelper\\' => array($vendorDir . '/swoole/ide-helper/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
     'Doctrine\\Common\\Lexer\\' => array($vendorDir . '/doctrine/lexer/lib/Doctrine/Common/Lexer'),

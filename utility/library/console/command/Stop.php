@@ -31,12 +31,12 @@ class Stop extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pid_file = Config::getInstance()->get('server.pid_file');
+        $pid_file = Config::getInstance()->get('server.setting.pid_file');
         if (!file_exists($pid_file)) {
             $output->writeln('<error>The pid file does not exists!</error>');
             return false;
         }
-        list($master_pid,) = explode(',', file_get_contents($pid_file));
+        $master_pid = intval(file_get_contents($pid_file));
         //如果进程存在
         if (Process::kill($master_pid, 0)) {
             Process::kill($master_pid);

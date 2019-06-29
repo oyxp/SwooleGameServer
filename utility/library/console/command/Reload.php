@@ -28,13 +28,13 @@ class Reload extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $pid_file = Config::getInstance()->get('server.pid_file');
+        $pid_file = Config::getInstance()->get('server.setting.pid_file');
         if (!file_exists($pid_file)) {
             $output->writeln('<error>The pid file does not exists!</error>');
             return false;
         }
-        list(, $manager_pid) = explode(',', file_get_contents($pid_file));
-        if (!Process::kill($manager_pid, 0)) {
+        $master_pid = intval(file_get_contents($pid_file));
+        if (!Process::kill($master_pid, 0)) {
             $output->writeln('<error>The manager process does not exists!</error>');
             return false;
         }
@@ -45,7 +45,7 @@ class Reload extends Command
         //SIGUSR2 : 只reload task worker
         //SIGUSR1 ： reload所有worker
         $signal = $only_task ? SIGUSR2 : SIGUSR1;
-        Process::kill($manager_pid, $signal);
+        Process::kill($master_pid, $signal);
         $output->writeln('<info>Reload server at ' . date('Y-m-d H:i:s') . ',' . ($only_task ? 'Only-Task' : 'All-Worker') . ' </info>');
         return true;
     }

@@ -259,18 +259,18 @@
         ]
     },
     {
-        "name": "swoft/swoole-ide-helper",
-        "version": "v4.3.3",
-        "version_normalized": "4.3.3.0",
+        "name": "swoole/ide-helper",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/swoft-cloud/swoole-ide-helper.git",
-            "reference": "858f83953813e0f6643e221793adeabcc71f5be5"
+            "url": "https://github.com/swoole/ide-helper.git",
+            "reference": "7035aeb5c6d42c22b44aef1304aac62d6733b5e5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/swoft-cloud/swoole-ide-helper/zipball/858f83953813e0f6643e221793adeabcc71f5be5",
-            "reference": "858f83953813e0f6643e221793adeabcc71f5be5",
+            "url": "https://api.github.com/repos/swoole/ide-helper/zipball/7035aeb5c6d42c22b44aef1304aac62d6733b5e5",
+            "reference": "7035aeb5c6d42c22b44aef1304aac62d6733b5e5",
             "shasum": "",
             "mirrors": [
                 {
@@ -279,20 +279,29 @@
                 }
             ]
         },
-        "time": "2019-05-02T10:07:59+00:00",
+        "require-dev": {
+            "squizlabs/php_codesniffer": "~3.4.0",
+            "zendframework/zend-code": "~3.3.0"
+        },
+        "time": "2019-05-22T19:49:35+00:00",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Swoole\\IDEHelper\\": "src/"
+            }
+        },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
             "Apache-2.0"
         ],
-        "description": "ide helper for Swoft and Swoole",
-        "keywords": [
-            "ide-helper",
-            "php",
-            "swoft",
-            "swoole"
-        ]
+        "authors": [
+            {
+                "name": "Team Swoole",
+                "email": "team@swoole.com"
+            }
+        ],
+        "description": "IDE help files for Swoole."
     },
     {
         "name": "symfony/console",

@@ -65,13 +65,9 @@ class Start extends Command
      */
     protected function setServerCallback(\Swoole\WebSocket\Server $server, $config)
     {
-        /**
-         *这里存储master pid和manager pid
-         */
         $server->on('start', function (\Swoole\WebSocket\Server $server) use ($config) {
-            //存放masterpid和 manager pid
-            file_put_contents($config['pid_file'], $server->master_pid . ',' . $server->manager_pid);
-            if (PHP_OS == 'Linux') {
+            //重命名进程
+            if (PHP_OS != 'Darwin') {
                 cli_set_process_title($config['name']);
             }
             //触发自定义onstart回调
@@ -154,11 +150,11 @@ class Start extends Command
      */
     protected function isRunning(): bool
     {
-        $pid_file = Config::getInstance()->get('server.pid_file');
+        $pid_file = Config::getInstance()->get('server.setting.pid_file');
         if (!file_exists($pid_file)) {
             return false;
         }
-        list($master_pid, $manager_pid) = explode(',', file_get_contents($pid_file));
-        return Process::kill($master_pid, 0) && Process::kill($manager_pid, 0);
+        $master_pid = intval(file_get_contents($pid_file));
+        return Process::kill($master_pid, 0);
     }
 }
