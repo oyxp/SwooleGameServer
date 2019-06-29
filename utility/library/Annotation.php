@@ -65,7 +65,6 @@ class Annotation
             $classes = $this->scanPhpFile($dir, $namespace);
             $this->parseAnnotations($classes);
         }
-        var_dump($this->definitions);
     }
 
     /**

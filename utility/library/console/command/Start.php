@@ -15,6 +15,7 @@ use Swoole\Coroutine;
 use Swoole\WebSocket\Frame;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use traits\Response;
 
@@ -29,6 +30,7 @@ class Start extends Command
     protected function configure()
     {
         $this->setName('app:start')
+            ->addOption('daemonize', 'daemonize', InputOption::VALUE_OPTIONAL, 'run in daemonize', false)
             ->setDescription('start sever')
             ->setHelp('start websocket server');
     }
@@ -42,6 +44,9 @@ class Start extends Command
     {
         $config = Config::getInstance()->pull('server');
         $server = new \Swoole\WebSocket\Server($config['host'], $config['port'], $config['mode'], $config['sock_type']);
+        if ($daemonize = $input->getOption('daemonize')) {
+            $config['setting']['daemonize'] = true;
+        }
         $server->set($config['setting']);
         App::$swooleServer = $server;
         //设置回调函数
