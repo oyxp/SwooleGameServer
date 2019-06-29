@@ -13,6 +13,10 @@ use gs\annotation\Command;
 use gs\AppException;
 use gs\WebsocketController;
 
+/**
+ * Class Index
+ * @package app\websocket
+ */
 class Index extends WebsocketController
 {
     /**
