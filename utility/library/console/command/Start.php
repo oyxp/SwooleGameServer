@@ -14,9 +14,9 @@ use interfaces\CustomEvent;
 use Swoole\Coroutine;
 use Swoole\Process;
 use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use traits\Response;
 
@@ -63,9 +63,10 @@ class Start extends Command
      * @param \Swoole\WebSocket\Server $server
      * @param array $enable_http
      */
-    protected function setServerCallback(\Swoole\WebSocket\Server $server, $config)
+    protected function setServerCallback(Server $server, $config)
     {
-        $server->on('start', function (\Swoole\WebSocket\Server $server) use ($config) {
+        //自定义
+        $server->on('start', function (Server $server) use ($config) {
             //重命名进程
             if (PHP_OS != 'Darwin') {
                 cli_set_process_title($config['name']);
@@ -78,7 +79,25 @@ class Start extends Command
             }
             return true;
         });
-        $server->on('message', function (\Swoole\WebSocket\Server $server, Frame $frame) use ($config) {
+        //自定义workerstart
+        $server->on('workerStart', function (Server $server, int $worker_id) use ($config) {
+            //主要是做重命名worker进程名
+            if (PHP_OS != 'Darwin') {
+                if ($server->taskworker) {
+                    cli_set_process_title($config['name'] . ' task worker');
+                } else {
+                    cli_set_process_title($config['name'] . ' worker');
+                }
+            }
+            //触发自定义onworker start回调
+            $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_WORKER_START);
+            foreach ($events as $event) {
+                $object = new $event();
+                method_exists($object, 'handle') && call_user_func_array([$object, 'handle'], [$server, $worker_id]);
+            }
+        });
+        
+        $server->on('message', function (Server $server, Frame $frame) use ($config) {
             //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据 集群要求lua脚本操作的key必须在同一个槽，可以使用{key}方式手动分配
             go(function () use ($server, $frame, $config) {
                 //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
@@ -132,7 +151,7 @@ class Start extends Command
         $server->on('task', function ($serv, \Swoole\Server\Task $task) {
 
         });
-        $server->on('finish', function (\swoole_server $serv, int $task_id, string $data) {
+        $server->on('finish', function (Server $serv, int $task_id, string $data) {
 
         });
         //这里注册其他事件

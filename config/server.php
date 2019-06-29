@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'name'            => 'SwooleGameServer',//服务器名
     'host'            => '0.0.0.0',
     'port'            => 8080,
     'mode'            => SWOOLE_PROCESS,

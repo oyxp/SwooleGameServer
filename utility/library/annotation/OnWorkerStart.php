@@ -4,7 +4,7 @@
 namespace gs\annotation;
 
 
-use interfaces\SwooleEvent;
+use interfaces\CustomEvent;
 
 /**
  * Class OnWorkerStart
@@ -16,6 +16,6 @@ class OnWorkerStart
 {
     public function getEventName()
     {
-        return SwooleEvent::ON_WORKER_START;
+        return CustomEvent::ON_WORKER_START;
     }
 }

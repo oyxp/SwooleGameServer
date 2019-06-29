@@ -1,13 +1,13 @@
 <?php
 
 
-namespace interfaces\event\swoole;
+namespace interfaces\event\custom;
 
 
-use interfaces\SwooleEvent;
+use interfaces\CustomEvent;
 use Swoole\WebSocket\Server;
 
-interface OnWorkerStart extends SwooleEvent
+interface OnWorkerStart extends CustomEvent
 {
     /**此事件在Worker进程/Task进程启动时发生。这里创建的对象可以在进程生命周期内使用。
      * 可以通过$server->taskworker属性来判断当前是Worker进程还是Task进程

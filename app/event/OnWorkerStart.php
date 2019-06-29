@@ -11,7 +11,7 @@ use Swoole\WebSocket\Server;
  * @package App\event
  * @\gs\annotation\OnWorkerStart()
  */
-class OnWorkerStart implements \interfaces\event\swoole\OnWorkerStart
+class OnWorkerStart implements \interfaces\event\custom\OnWorkerStart
 {
 
     /**此事件在Worker进程/Task进程启动时发生。这里创建的对象可以在进程生命周期内使用。
