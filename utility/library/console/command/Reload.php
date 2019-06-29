@@ -16,7 +16,7 @@ class Reload extends Command
     public function configure()
     {
         $this->setName('app:reload')
-            ->addOption('only_task', 'ot', InputOption::VALUE_OPTIONAL, 'only reload task process?', false)
+            ->addOption('only_task', 'o', InputOption::VALUE_OPTIONAL, 'only reload task process?', true)
             ->setDescription('reload server')
             ->setHelp('reload server');
     }
@@ -38,9 +38,15 @@ class Reload extends Command
             $output->writeln('<error>The manager process does not exists!</error>');
             return false;
         }
-        $signal = $input->getOption('only_task') ? SIGUSR2 : SIGUSR1;
+        $only_task = $input->getOption('only_task');
+        if ($only_task === 'false') {
+            $only_task = false;
+        }
+        //SIGUSR2 : 只reload task worker
+        //SIGUSR1 ： reload所有worker
+        $signal = $only_task ? SIGUSR2 : SIGUSR1;
         Process::kill($manager_pid, $signal);
-        $output->writeln('<info>Reload server at ' . date('Y-m-d H:i:s') . '</info>');
+        $output->writeln('<info>Reload server at ' . date('Y-m-d H:i:s') . ',' . ($only_task ? 'Only-Task' : 'All-Worker') . ' </info>');
         return true;
     }
 }
