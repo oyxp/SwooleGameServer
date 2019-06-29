@@ -32,4 +32,22 @@ class Index extends WebsocketController
     {
         throw new AppException(1000);
     }
+
+    /**
+     * @Command(102)
+     * @throws AppException
+     */
+    public function testException1()
+    {
+        throw new AppException(1010);
+    }
+
+    /**
+     * @Command(103)
+     * @throws AppException
+     */
+    public function testException2()
+    {
+        throw new AppException(1020, [__METHOD__]);
+    }
 }
