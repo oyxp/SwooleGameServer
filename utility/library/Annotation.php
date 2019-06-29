@@ -7,7 +7,6 @@ namespace gs;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
-use gs\annotation\OnStart;
 use gs\helper\ComposerHelper;
 use interfaces\CustomEvent;
 use interfaces\SwooleEvent;
