@@ -96,7 +96,7 @@ class Start extends Command
                 method_exists($object, 'handle') && call_user_func_array([$object, 'handle'], [$server, $worker_id]);
             }
         });
-        
+
         $server->on('message', function (Server $server, Frame $frame) use ($config) {
             //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据 集群要求lua脚本操作的key必须在同一个槽，可以使用{key}方式手动分配
             go(function () use ($server, $frame, $config) {

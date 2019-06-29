@@ -88,9 +88,9 @@ class Annotation
             if (!empty($class_annos)) {
                 foreach ($class_annos as $anno) {
                     if ($reflectionClass->implementsInterface(SwooleEvent::class)) {
-                        $this->definitions['swoole_event'][$anno->getEventName()] = $reflectionClass->getName();
+                        $this->definitions['swoole_event'][$anno->getEvent()] = $reflectionClass->getName();
                     } else if ($reflectionClass->implementsInterface(CustomEvent::class)) {
-                        $this->definitions['custom_event'][$anno->getEventName()][] = $reflectionClass->getName();
+                        $this->definitions['custom_event'][$anno->getEvent()][] = $reflectionClass->getName();
                     }
                 }
             }

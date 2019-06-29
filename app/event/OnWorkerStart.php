@@ -4,12 +4,14 @@
 namespace app\event;
 
 
+use gs\annotation\Listener;
 use Swoole\WebSocket\Server;
+use interfaces\CustomEvent;
 
 /**
  * Class OnWorkerStart
  * @package App\event
- * @\gs\annotation\OnWorkerStart()
+ * @Listener(CustomEvent::ON_WORKER_START)
  */
 class OnWorkerStart implements \interfaces\event\custom\OnWorkerStart
 {

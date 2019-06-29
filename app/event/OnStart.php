@@ -3,10 +3,13 @@
 
 namespace app\event;
 
+use gs\annotation\Listener;
+use interfaces\CustomEvent;
+
 /**
  * Class OnStart
  * @package app\event
- * @\gs\annotation\OnStart()
+ * @Listener(CustomEvent::ON_START)
  */
 class OnStart implements \interfaces\event\custom\OnStart
 {
