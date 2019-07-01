@@ -8,6 +8,6 @@ return [
     ],//要扫描注解的目录
 
     'error_handle'    => [\gs\Error::class, 'handle'],//错误处理类, 必须实现handle方法
-    'shutdown_handle' => \gs\Error::class,
+    'shutdown_handle' => '',
 
 ];
