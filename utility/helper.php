@@ -24,3 +24,11 @@ if (!function_exists('env')) {
         return $value;
     }
 }
+
+
+if (!function_exists('cache()')) {
+    function cache()
+    {
+        
+    }
+}
