@@ -97,7 +97,7 @@ class App
         if (!$newInstance && isset(self::$instances[$class])) {
             return self::$instances[$class];
         }
-        self::$instances[$class] = new $class($args);
+        self::$instances[$class] = new $class(...$args);
         return self::$instances[$class];
     }
 }
