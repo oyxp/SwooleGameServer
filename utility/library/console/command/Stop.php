@@ -33,7 +33,7 @@ class Stop extends Command
     {
         $pid_file = Config::getInstance()->get('server.setting.pid_file');
         if (!file_exists($pid_file)) {
-            $output->writeln('<error>The pid file does not exists!</error>');
+            $output->writeln('<error> Server is already stop!（pid file does not exists）</error>');
             return false;
         }
         $master_pid = intval(file_get_contents($pid_file));
@@ -46,9 +46,7 @@ class Stop extends Command
                 //如果关闭成功
                 if (!Process::kill($master_pid, 0)) {
                     //删除pid文件
-                    if (file_exists($pid_file)) {
-                        @unlink($pid_file);
-                    }
+                    file_exists($pid_file) && @unlink($pid_file);
                     $output->writeln('<info>Server stop at ' . date('Y-m-d H:i:s') . '</info>');
                     return true;
                 }
