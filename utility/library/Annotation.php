@@ -127,7 +127,7 @@ class Annotation
                 if (isset($definitions[$key])) {
                     $definitions = $definitions[$key];
                 } else {
-                    return null;
+                    return [];
                 }
             }
             return $definitions;

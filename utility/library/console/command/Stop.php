@@ -46,7 +46,9 @@ class Stop extends Command
                 //如果关闭成功
                 if (!Process::kill($master_pid, 0)) {
                     //删除pid文件
-                    @unlink($pid_file);
+                    if (file_exists($pid_file)) {
+                        @unlink($pid_file);
+                    }
                     $output->writeln('<info>Server stop at ' . date('Y-m-d H:i:s') . '</info>');
                     return true;
                 }

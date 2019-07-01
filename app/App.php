@@ -5,6 +5,8 @@ namespace app;
 
 use gs\Annotation;
 use gs\Config;
+use gs\Error;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use traits\Singleton;
 
 class App
@@ -83,7 +85,28 @@ class App
      */
     public function registerErrorExceptionHandle()
     {
-//        set_error_handler();
+        //开启错误显示
+        ini_set('display_errors', 'on');
+        error_reporting(E_ALL | E_STRICT);
+        //错误处理
+        $error_handle = $this->config->get('error_handle');
+        if (!is_callable($error_handle)) {
+            $error_handle = function (int $errno, string $errmsg, string $errfile = '', int $errline = 0) {
+                $this->makeInstance(ConsoleOutput::class)->writeln('<comment>' . "{$errmsg} in {$errfile} at line {$errline}" . '</comment>');
+            };
+        }
+        set_error_handler($error_handle);
+
+        $shutdown_func = $this->config->get('shutdown_handle');
+        if (!is_callable($shutdown_func)) {
+            $shutdown_func = function () {
+                $error = error_get_last();
+                if (!empty($error)) {
+                    $this->makeInstance(ConsoleOutput::class)->writeln('<error>' . "{$error['message']} in {$error['file']} at line {$error['line']}" . '</error>');
+                }
+            };
+        }
+        register_shutdown_function($shutdown_func);
     }
 
     /**获取对象
