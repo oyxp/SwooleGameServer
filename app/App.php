@@ -79,7 +79,7 @@ class App
     }
 
     /**
-     *注册错误处理和异常处理
+     *注册错误处理和异常处理 关闭函数
      */
     public function registerErrorExceptionHandle()
     {
