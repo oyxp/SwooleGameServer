@@ -48,7 +48,7 @@ class Redis implements InterfaceRedis
     public function connect()
     {
         //如果当前不在协程环境中，则返回-1
-        if (-1 !== Coroutine::getCid()) {
+        if (-1 === Coroutine::getCid()) {
             $this->redis = new \Redis();
             list($host, $port) = explode(':', $this->config['uri'][0]);
             $this->redis->connect($host, $port, $this->config['connect_timeout'], null, 0, $this->config['read_timout']);
@@ -79,7 +79,6 @@ class Redis implements InterfaceRedis
         try {
             $ret = call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Throwable $throwable) {
-            var_dump($throwable->getMessage());
             if (false !== strpos($throwable->getMessage(), 'close')) {
                 $this->connect();
                 $ret = call_user_func_array([$this->redis, $name], $arguments);

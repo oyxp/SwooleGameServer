@@ -4,7 +4,6 @@
 namespace gs\cache;
 
 
-use gs\Config;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Redis;
 
@@ -55,7 +54,7 @@ class RedisCluster implements InterfaceRedis
     public function connect()
     {
         //如果当前不在协程环境中，则返回-1
-        if (-1 !== Coroutine::getCid()) {
+        if (-1 === Coroutine::getCid()) {
             $this->redis = new \RedisCluster(NULL, $this->config['uri'], $this->config['connect_timeout'], $this->config['read_timout'], $this->config['persistent']);
             if (!$this->redis) {
                 throw new \RedisException('connect redis error.');
@@ -63,7 +62,8 @@ class RedisCluster implements InterfaceRedis
             $this->redis->setOption(\RedisCluster::OPT_SLAVE_FAILOVER, \RedisCluster::FAILOVER_DISTRIBUTE);
         } else {
             $this->redis = new Redis();
-            $this->redis->connect($this->config['uri'][array_rand($this->config['uri'])]);
+            list($host, $port) = explode(':', $this->config['uri'][array_rand($this->config['uri'])]);
+            $this->redis->connect($host, $port);
             if (!$this->redis) {
                 throw new \RedisException('connect redis error.');
             }
