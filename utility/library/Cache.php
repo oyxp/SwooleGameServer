@@ -32,10 +32,8 @@ class Cache extends AbstractPool
     {
         // TODO: Implement __call() method.
         $object = $this->pop();
-        var_dump($object);
         $ret = call_user_func_array([$object, $name], $arguments);
         $this->recycle($object);
-        var_dump($this->getCurrentSize());
         return $ret;
     }
 }

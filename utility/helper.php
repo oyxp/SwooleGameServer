@@ -25,10 +25,15 @@ if (!function_exists('env')) {
     }
 }
 
-
-if (!function_exists('cache()')) {
+/**
+ *cache()
+ */
+if (!function_exists('cache')) {
+    /**
+     * @return \Redis|\RedisCluster|\Swoole\Coroutine\Redis
+     */
     function cache()
     {
-        
+        return \gs\Cache::getInstance();
     }
 }

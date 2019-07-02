@@ -26,8 +26,8 @@ class Index extends WebsocketController
      */
     public function index()
     {
-        Cache::getInstance()->set('time', time());
-        return $this->success(Cache::getInstance()->get('time'));
+        cache()->set('time', time());
+        return $this->success(cache()->get('time'));
     }
 
     /**
