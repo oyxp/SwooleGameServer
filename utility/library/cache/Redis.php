@@ -13,7 +13,7 @@ class Redis implements InterfaceRedis
      */
     private $config = [
         'uri'             => [
-            'redis-cluster:7000',
+            '127.0.0.1:6379',
         ],
         'read_timout'     => 1.5,
         'connect_timeout' => 1.5,
