@@ -9,6 +9,7 @@ use gs\Annotation;
 use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
+use gs\Dispatcher;
 use gs\RequestContext;
 use interfaces\event\CustomEvent;
 use interfaces\InterfaceProcess;
@@ -159,11 +160,14 @@ class Start extends Command
 
         if ($config['enable_http']) {
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
-                try {
-                    $response->end(1);
-                } catch (\Throwable $throwable) {
+                go(function () use ($request, $response) {
+                    try {
+                        $ret = Dispatcher::getInstance()->dispatch($request);
+                        $response->end(is_scalar($ret) ? $ret : json_encode($ret));
+                    } catch (\Throwable $throwable) {
 
-                }
+                    }
+                });
             });
         }
         $server->on('task', function ($serv, \Swoole\Server\Task $task) {

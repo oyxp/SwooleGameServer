@@ -12,7 +12,6 @@ use Swoole\Process as SwooleProcess;
 /**
  * Class CustomProcess
  * @package app\process
- * @Process(name="test_process")
  */
 class CustomProcess implements InterfaceProcess
 {

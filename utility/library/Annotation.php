@@ -133,7 +133,7 @@ class Annotation
     {
         if (!is_null($name)) {
             if (!strpos($name, '.')) {
-                return $this->definitions[$name] ?? false;
+                return $this->definitions[$name] ?? [];
             }
             $value = explode('.', $name);
             $definitions = $this->definitions;
