@@ -19,10 +19,12 @@
 - 4、根据命令行传入的参数，启动server
 > 加载对应的配置文件，启动server，注册相关事件回调函数
 
-- 5、组件开发：如redis连接池，数据库连接池、工具类
+- 5、添加自定义进程
  
-## Swoole H5 Game Server
-> 瞎JB写的，不够还是有点用
+- 6、组件开发：如redis连接池，数据库连接池、工具类
+ 
+## Swoole Game Server
+> swoole websocket server
   
 ## 启动
 
