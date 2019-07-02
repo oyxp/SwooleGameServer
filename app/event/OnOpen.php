@@ -9,7 +9,7 @@ use gs\annotation\Listener;
 use gs\Session;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Server;
-use interfaces\SwooleEvent;
+use interfaces\event\SwooleEvent;
 
 /**
  * Class OnOpen

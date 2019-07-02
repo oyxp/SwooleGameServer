@@ -9,7 +9,7 @@
 namespace interfaces\event\custom;
 
 
-use interfaces\CustomEvent;
+use interfaces\event\CustomEvent;
 use Swoole\WebSocket\Server;
 
 interface OnManagerStart extends CustomEvent

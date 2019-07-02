@@ -4,6 +4,7 @@
 namespace gs\cache;
 
 
+use interfaces\cache\InterfaceRedis;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Redis;
 
@@ -83,7 +84,6 @@ class RedisCluster implements InterfaceRedis
         try {
             $ret = call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Throwable $throwable) {
-            var_dump($throwable->getMessage());
             if (false !== strpos($throwable->getMessage(), 'close')) {
                 $this->connect();
                 $ret = call_user_func_array([$this->redis, $name], $arguments);

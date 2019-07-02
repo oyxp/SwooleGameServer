@@ -4,6 +4,7 @@
 namespace gs\cache;
 
 
+use interfaces\cache\InterfaceRedis;
 use Swoole\Coroutine;
 
 class Redis implements InterfaceRedis

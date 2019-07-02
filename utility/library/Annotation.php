@@ -8,8 +8,8 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
 use gs\helper\ComposerHelper;
-use interfaces\CustomEvent;
-use interfaces\SwooleEvent;
+use interfaces\event\CustomEvent;
+use interfaces\event\SwooleEvent;
 use traits\Singleton;
 
 class Annotation

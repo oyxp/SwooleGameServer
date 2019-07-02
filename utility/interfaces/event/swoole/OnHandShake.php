@@ -9,7 +9,7 @@
 namespace interfaces\event\swoole;
 
 
-use interfaces\SwooleEvent;
+use interfaces\event\SwooleEvent;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 

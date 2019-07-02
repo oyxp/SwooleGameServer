@@ -4,7 +4,7 @@
 namespace app\event;
 
 use gs\annotation\Listener;
-use interfaces\CustomEvent;
+use interfaces\event\CustomEvent;
 
 /**
  * Class OnStart

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace interfaces;
+namespace interfaces\event;
 
 /**自定义事件
  * Interface CustomEvent

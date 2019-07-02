@@ -7,7 +7,7 @@ namespace app\event;
 use gs\annotation\Listener;
 use gs\Session;
 use Swoole\WebSocket\Server;
-use interfaces\SwooleEvent;
+use interfaces\event\SwooleEvent;
 
 /**
  * Class OnClose

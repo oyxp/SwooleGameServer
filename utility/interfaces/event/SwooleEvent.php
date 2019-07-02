@@ -1,6 +1,6 @@
 <?php
 
-namespace interfaces;
+namespace interfaces\event;
 
 interface SwooleEvent
 {

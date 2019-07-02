@@ -12,7 +12,7 @@ namespace app\event;
 use gs\annotation\Listener;
 use interfaces\event\swoole\OnWorkerStop;
 use Swoole\WebSocket\Server;
-use interfaces\SwooleEvent;
+use interfaces\event\SwooleEvent;
 
 /**
  * Class WorkerStopListener

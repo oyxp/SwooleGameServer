@@ -1,7 +1,7 @@
 <?php
 
 
-namespace gs\cache;
+namespace interfaces\cache;
 
 
 interface InterfaceRedis

@@ -10,7 +10,7 @@ use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
 use gs\RequestContext;
-use interfaces\CustomEvent;
+use interfaces\event\CustomEvent;
 use Swoole\Coroutine;
 use Swoole\Process;
 use Swoole\WebSocket\Frame;

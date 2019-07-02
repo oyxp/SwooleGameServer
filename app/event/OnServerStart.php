@@ -6,7 +6,7 @@ namespace app\event;
 
 use gs\annotation\Listener;
 use Swoole\WebSocket\Server;
-use interfaces\CustomEvent;
+use interfaces\event\CustomEvent;
 
 /**
  * Class OnServerStart

@@ -9,7 +9,7 @@
 namespace interfaces\event\swoole;
 
 
-use interfaces\SwooleEvent;
+use interfaces\event\SwooleEvent;
 use Swoole\WebSocket\Server;
 
 interface OnWorkerStop extends SwooleEvent
