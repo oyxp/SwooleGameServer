@@ -4,7 +4,9 @@
 namespace app\event;
 
 
+use app\model\AcessTokenModel;
 use gs\annotation\Listener;
+use gs\Session;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Server;
 use interfaces\SwooleEvent;
@@ -27,13 +29,20 @@ class OnOpen implements \interfaces\event\swoole\OnOpen
     public function handle(Server $server, Request $req)
     {
         // TODO: Implement handle() method.
-        $request = \gs\Request::getInstance($req);
+        $request = new \gs\Request($req);
         $access_token = $request->get('access_token');
         if (empty($access_token)) {
             $server->close($request->getFd());
             return false;
         }
         //获取用户信息
-        
+        $uid = AcessTokenModel::getUidByAccessToken($access_token);
+        if (empty($uid)) {
+            $server->close($request->getFd());
+            return false;
+        }
+        //初始化session
+        Session::bindUid($uid, $request->getFd());
+        //todo 初始化用户信息
     }
 }

@@ -11,8 +11,7 @@ namespace app\websocket;
 
 use gs\annotation\Command;
 use gs\AppException;
-use gs\Cache;
-use gs\cache\RedisCluster;
+use gs\Session;
 use gs\WebsocketController;
 
 /**
@@ -55,5 +54,13 @@ class Index extends WebsocketController
     public function testException2()
     {
         throw new AppException(1020, [__METHOD__]);
+    }
+
+    /**
+     * @Command(104)
+     */
+    public function getUid()
+    {
+        return $this->success(Session::getUidByFd($this->getRequestContext()->getFd()));
     }
 }

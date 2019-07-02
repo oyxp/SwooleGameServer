@@ -5,6 +5,7 @@ namespace app\event;
 
 
 use gs\annotation\Listener;
+use gs\Session;
 use Swoole\WebSocket\Server;
 use interfaces\SwooleEvent;
 
@@ -26,5 +27,6 @@ class OnClose implements \interfaces\event\swoole\OnClose
     {
         // TODO: Implement handle() method.
         var_dump(__METHOD__);
+        Session::closeFd($fd);
     }
 }

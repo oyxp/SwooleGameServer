@@ -52,5 +52,16 @@ class Session
         $fd = self::getFdByUid($uid);
         unset(self::$fd_to_uid[$fd]);
         unset(self::$uid_to_fd[$uid]);
+        return $fd;
+    }
+
+    /**close fd
+     * @param $fd
+     */
+    public static function closeFd($fd)
+    {
+        $uid = self::getUidByFd($fd);
+        unset(self::$fd_to_uid[$fd], self::$uid_to_fd[$uid]);
+        return $uid;
     }
 }
