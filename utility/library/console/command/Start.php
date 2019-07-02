@@ -209,7 +209,9 @@ class Start extends Command
             $ref = new \ReflectionClass($class);
             if ($ref->implementsInterface(InterfaceProcess::class)) {
                 $new_process = new Process(function (Process $process) use ($server, $class, $name) {
-                    $process->name($name);
+                    if (PHP_OS != 'Darwin') {
+                        $process->name($name);
+                    }
                     call_user_func_array([$class, 'handle'], [$server, $process]);
                 });
                 $server->addProcess($new_process);

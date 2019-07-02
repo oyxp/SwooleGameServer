@@ -20,6 +20,19 @@ class Console
 {
     use Singleton;
 
+    private $application;
+
+
+    private function __construct()
+    {
+        //console init
+        $this->application = new Application();
+        $this->application->add(new Start());
+        $this->application->add(new Stop());
+        $this->application->add(new Reload());
+        $this->application->add(new Status());
+    }
+
     /**
      * @throws \Doctrine\Common\Annotations\AnnotationException
      * @throws \ReflectionException
@@ -27,14 +40,11 @@ class Console
      */
     public function run()
     {
-        //app init
-        App::getInstance()->run();
-        //console init
-        $application = new Application();
-        $application->add(new Start());
-        $application->add(new Stop());
-        $application->add(new Reload());
-        $application->add(new Status());
-        $application->run();
+        global $argv;
+        if (count($argv) > 1 && !in_array($argv[1], ['list', 'help'])) {
+            //app init
+            App::getInstance()->run();
+        }
+        $this->application->run();
     }
 }
