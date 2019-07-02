@@ -11,6 +11,7 @@ use gs\CmdParser;
 use gs\Config;
 use gs\RequestContext;
 use interfaces\event\CustomEvent;
+use interfaces\InterfaceProcess;
 use Swoole\Coroutine;
 use Swoole\Process;
 use Swoole\WebSocket\Frame;
@@ -56,6 +57,8 @@ class Start extends Command
         App::$swooleServer = $server;
         //设置回调函数
         $this->setServerCallback($server, $config);
+        //添加自定义进程
+        $this->addCustomProcess($server);
         $server->start();
     }
 
@@ -190,5 +193,27 @@ class Start extends Command
         }
         $master_pid = intval(file_get_contents($pid_file));
         return Process::kill($master_pid, 0);
+    }
+
+    /**
+     * 添加自定义进程
+     * @param Server $server
+     * @throws \ReflectionException
+     */
+    protected function addCustomProcess(Server $server)
+    {
+        $process_classes = Annotation::getInstance()->getDefinitions('process');
+        foreach ($process_classes as $process_class) {
+            $class = $process_class['class'];
+            $name = $process_class['name'] ?? $class;
+            $ref = new \ReflectionClass($class);
+            if ($ref->implementsInterface(InterfaceProcess::class)) {
+                $new_process = new Process(function (Process $process) use ($server, $class, $name) {
+                    $process->name($name);
+                    call_user_func_array([$class, 'handle'], [$server, $process]);
+                });
+                $server->addProcess($new_process);
+            }
+        }
     }
 }

@@ -7,6 +7,8 @@ namespace gs;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
+use gs\annotation\Listener;
+use gs\annotation\Process;
 use gs\helper\ComposerHelper;
 use interfaces\event\CustomEvent;
 use interfaces\event\SwooleEvent;
@@ -26,6 +28,8 @@ class Annotation
         'app\\websocket',
         'app\\event',
         'app\\task',
+        'app\\process',
+        'app\\http',
     ];
     /**
      * @var array
@@ -64,6 +68,7 @@ class Annotation
             $classes = $this->scanPhpFile($dir, $namespace);
             $this->parseAnnotations($classes);
         }
+        var_dump($this->definitions);
     }
 
     /**
@@ -86,10 +91,19 @@ class Annotation
             $class_annos = $reader->getClassAnnotations($reflectionClass);
             if (!empty($class_annos)) {
                 foreach ($class_annos as $anno) {
-                    if ($reflectionClass->implementsInterface(SwooleEvent::class)) {
-                        $this->definitions['swoole_event'][$anno->getEvent()] = $reflectionClass->getName();
-                    } else if ($reflectionClass->implementsInterface(CustomEvent::class)) {
-                        $this->definitions['custom_event'][$anno->getEvent()][] = $reflectionClass->getName();
+                    //事件监听
+                    if ($anno instanceof Listener) {
+                        if ($reflectionClass->implementsInterface(SwooleEvent::class)) {
+                            $this->definitions['swoole_event'][$anno->getEvent()] = $reflectionClass->getName();
+                        } else if ($reflectionClass->implementsInterface(CustomEvent::class)) {
+                            $this->definitions['custom_event'][$anno->getEvent()][] = $reflectionClass->getName();
+                        }
+                    } else if ($anno instanceof Process) {
+                        //自定义进程
+                        $this->definitions['process'][] = [
+                            'class' => $reflectionClass->getName(),
+                            'name'  => $anno->getName(),
+                        ];
                     }
                 }
             }

@@ -19,10 +19,10 @@ class Route
     public function __construct(array $values)
     {
         if (isset($values['value'])) {
-            $this->code = $values['value'];
+            $this->uri = $values['value'];
         }
         if (isset($values['uri'])) {
-            $this->code = $values['uri'];
+            $this->uri = $values['uri'];
         }
     }
 
