@@ -112,7 +112,6 @@ class AbstractPool
      */
     protected function getCurrentSize()
     {
-        var_dump($this->usingNum);
         return $this->pool->length();
     }
 }
