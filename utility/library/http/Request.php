@@ -1,12 +1,12 @@
 <?php
 
 
-namespace gs;
+namespace gs\http;
 
 
 use traits\Singleton;
 
-class Request
+class Request extends \gs\http\message\Request
 {
     use Singleton;
     /**
@@ -21,6 +21,7 @@ class Request
     public function __construct(\Swoole\Http\Request $request)
     {
         $this->swooleRequest = $request;
+        parent::__construct('1.1', $request->header);
     }
 
     /**
@@ -41,6 +42,11 @@ class Request
     public function post($name, $default = null)
     {
         return $this->swooleRequest->post[$name] ?? $default;
+    }
+
+    public function server($name, $default = null)
+    {
+        return $this->swooleRequest->server[$name] ?? $default;
     }
 
     public function getFd()

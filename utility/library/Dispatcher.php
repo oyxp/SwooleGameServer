@@ -12,6 +12,8 @@ namespace gs;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 use FastRoute\Dispatcher as FastDispatcher;
+use gs\http\Request;
+use gs\http\Response;
 use traits\Singleton;
 
 class Dispatcher
@@ -22,25 +24,22 @@ class Dispatcher
     public function __construct()
     {
         $this->dispatcher = simpleDispatcher(function (RouteCollector $r) {
-            $r->addRoute('GET', '/', function () {
-                return [1, 2, 3];
-            });
-//            $r->addRoute('GET', '/users', 'get_all_users_handler');
-            // {id} must be a number (\d+)
-//            $r->addRoute('GET', '/user/{id:\d+}', 'get_user_handler');
-            // The /{title} suffix is optional
-//            $r->addRoute('GET', '/articles/{id:\d+}[/{title}]', 'get_article_handler');
+            $routers = Annotation::getInstance()->getDefinitions('router');
+            foreach ($routers as $router) {
+                list($method, $uri, $handle) = $router;
+                $r->addRoute($method, $uri, $handle);
+            }
         });
     }
 
-    public function dispatch(\Swoole\Http\Request $request)
+    public function dispatch(Request $request, Response $response)
     {
-        $httpMethod = $request->server['request_method'];
-        $uri = $request->server['request_uri'];
+        $httpMethod = $request->server('request_method');
+        $uri = $request->server('request_uri');
         if (false !== $pos = strpos($uri, '?')) {
             $uri = substr($uri, 0, $pos);
         }
-        var_dump($uri);
+        var_dump('$uri:' . $uri);
         $uri = rawurldecode($uri);
         $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
         switch ($routeInfo[0]) {
@@ -51,8 +50,8 @@ class Dispatcher
             case FastDispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 // ... 405 Method Not Allowed
-                var_dump('METHOD_NOT_ALLOWED');
-
+//                $response
+                return 'METHOD_NOT_ALLOWED';
                 break;
             case FastDispatcher::FOUND:
                 $handler = $routeInfo[1];
@@ -60,9 +59,12 @@ class Dispatcher
                 // ... call $handler with $vars
                 if (is_callable($handler)) {
                     return $handler($vars);
-                } else if (false === strpos($handler, '@')) {
+                } else if (false !== strpos($handler, '@')) {
                     list($controller, $action) = explode('@', $handler);
-                    return call_user_func_array([new $controller, $action], $vars);
+                    $ret = call_user_func_array([new $controller(), $action], $vars);
+                    return $ret;
+                } else {
+
                 }
                 break;
         }

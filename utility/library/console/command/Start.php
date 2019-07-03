@@ -10,6 +10,7 @@ use gs\AppException;
 use gs\CmdParser;
 use gs\Config;
 use gs\Dispatcher;
+use gs\http\Request;
 use gs\RequestContext;
 use interfaces\event\CustomEvent;
 use interfaces\InterfaceProcess;
@@ -159,11 +160,14 @@ class Start extends Command
         });
 
         if ($config['enable_http']) {
+            Dispatcher::getInstance();
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
                 go(function () use ($request, $response) {
                     try {
-                        $ret = Dispatcher::getInstance()->dispatch($request);
-                        $response->end(is_scalar($ret) ? $ret : json_encode($ret));
+                        $request = new Request($request);
+                        $response = new \gs\http\Response($response);
+                        $ret = Dispatcher::getInstance()->dispatch($request, $response);
+                        $response->write($ret);
                     } catch (\Throwable $throwable) {
 
                     }

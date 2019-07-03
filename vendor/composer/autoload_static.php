@@ -42,6 +42,7 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         ),
         'P' => 
         array (
+            'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
         ),
         'F' => 
@@ -100,6 +101,10 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         'Swoole\\IDEHelper\\' => 
         array (
             0 => __DIR__ . '/..' . '/swoole/ide-helper/src',
+        ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Container\\' => 
         array (

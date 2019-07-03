@@ -9,6 +9,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
 use gs\annotation\Listener;
 use gs\annotation\Process;
+use gs\annotation\Route;
 use gs\helper\ComposerHelper;
 use interfaces\event\CustomEvent;
 use interfaces\event\SwooleEvent;
@@ -114,14 +115,25 @@ class Annotation
                     continue;
                 }
                 // 解析方法注解
-                $sub_command = $reader->getMethodAnnotation($method, Command::class);
-                if (empty($sub_command) || !($sub_command instanceof Command)) {
-                    continue;
+                $sub_commands = $reader->getMethodAnnotations($method);
+                var_dump($sub_commands);
+                foreach ($sub_commands as $sub_command) {
+                    if (empty($sub_command)) {
+                        continue;
+                    }
+                    if ($sub_command instanceof Command) {
+                        $this->definitions['command'][$sub_command->getCode()] = [
+                            'class'  => $method->getDeclaringClass()->getName(),
+                            'method' => $method->getName(),
+                        ];
+                    } else if ($sub_command instanceof Route) {
+                        $this->definitions['router'][] = [
+                            $sub_command->getMethod(),
+                            $sub_command->getUri(),
+                            $method->getDeclaringClass()->getName() . '@' . $method->getName(),
+                        ];
+                    }
                 }
-                $this->definitions['command'][$sub_command->getCode()] = [
-                    'class'  => $method->getDeclaringClass()->getName(),
-                    'method' => $method->getName(),
-                ];
             }
         }
     }

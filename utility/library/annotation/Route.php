@@ -15,6 +15,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 class Route
 {
     private $uri;
+    private $method;
 
     public function __construct(array $values)
     {
@@ -24,14 +25,21 @@ class Route
         if (isset($values['uri'])) {
             $this->uri = $values['uri'];
         }
+        if (isset($values['method'])) {
+            $this->method = $values['method'];
+        }
     }
 
     /**
      * @return string
      */
-    public function getUri(): string
+    public function getUri(): ?string
     {
         return $this->uri;
     }
 
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
 }

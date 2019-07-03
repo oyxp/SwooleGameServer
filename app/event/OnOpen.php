@@ -29,7 +29,7 @@ class OnOpen implements \interfaces\event\swoole\OnOpen
     public function handle(Server $server, Request $req)
     {
         // TODO: Implement handle() method.
-        $request = new \gs\Request($req);
+        $request = new \gs\http\Request($req);
         $access_token = $request->get('access_token');
         if (empty($access_token)) {
             $server->close($request->getFd());
