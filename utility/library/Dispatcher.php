@@ -39,7 +39,6 @@ class Dispatcher
         if (false !== $pos = strpos($uri, '?')) {
             $uri = substr($uri, 0, $pos);
         }
-        var_dump('$uri:' . $uri);
         $uri = rawurldecode($uri);
         $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
         switch ($routeInfo[0]) {

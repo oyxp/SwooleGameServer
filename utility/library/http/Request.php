@@ -21,7 +21,7 @@ class Request extends \gs\http\message\Request
     public function __construct(\Swoole\Http\Request $request)
     {
         $this->swooleRequest = $request;
-        parent::__construct('1.1', $request->header);
+        var_dump($request);
     }
 
     /**

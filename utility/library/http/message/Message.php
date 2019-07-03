@@ -11,6 +11,20 @@ class Message implements MessageInterface
 {
 
     /**
+     * @var string
+     */
+    private $protocol;
+    private $headers = [];
+    private $body;
+
+    public function __construct(array $headers, $body, $protocol = '1.1')
+    {
+        $this->headers = $headers;
+        $this->protocol = $protocol;
+        $this->body = $body;
+    }
+
+    /**
      * Retrieves the HTTP protocol version as a string.
      *
      * The string MUST contain only the HTTP version number (e.g., "1.1", "1.0").
@@ -20,6 +34,7 @@ class Message implements MessageInterface
     public function getProtocolVersion()
     {
         // TODO: Implement getProtocolVersion() method.
+        return $this->protocol;
     }
 
     /**
@@ -38,6 +53,8 @@ class Message implements MessageInterface
     public function withProtocolVersion($version)
     {
         // TODO: Implement withProtocolVersion() method.
+        $this->protocol = $version;
+        return $this;
     }
 
     /**
@@ -68,6 +85,7 @@ class Message implements MessageInterface
     public function getHeaders()
     {
         // TODO: Implement getHeaders() method.
+        return $this->headers;
     }
 
     /**
@@ -81,6 +99,7 @@ class Message implements MessageInterface
     public function hasHeader($name)
     {
         // TODO: Implement hasHeader() method.
+        return isset($this->headers[strtolower($name)]);
     }
 
     /**
@@ -100,6 +119,7 @@ class Message implements MessageInterface
     public function getHeader($name)
     {
         // TODO: Implement getHeader() method.
+        return $this->headers[strtolower($name)] ?? [];
     }
 
     /**
@@ -121,9 +141,10 @@ class Message implements MessageInterface
      *    concatenated together using a comma. If the header does not appear in
      *    the message, this method MUST return an empty string.
      */
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         // TODO: Implement getHeaderLine() method.
+        return implode(', ', $this->getHeader($name));
     }
 
     /**
@@ -144,6 +165,15 @@ class Message implements MessageInterface
     public function withHeader($name, $value)
     {
         // TODO: Implement withHeader() method.
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+        $name = strtolower($name);
+        if (isset($this->headers[$name]) && $this->headers[$name] === $value) {
+            return $this;
+        }
+        $this->headers[$name] = $value;
+        return $this;
     }
 
     /**
@@ -164,7 +194,16 @@ class Message implements MessageInterface
      */
     public function withAddedHeader($name, $value)
     {
-        // TODO: Implement withAddedHeader() method.
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+        $name = strtolower($name);
+        if (isset($this->headers[$name])) {
+            $this->headers[$name] = array_merge($this->headers[$name], $value);
+        } else {
+            $this->headers[$name] = $value;
+        }
+        return $this;
     }
 
     /**
@@ -182,6 +221,11 @@ class Message implements MessageInterface
     public function withoutHeader($name)
     {
         // TODO: Implement withoutHeader() method.
+        $name = strtolower($name);
+        if (isset($this->headers[$name])) {
+            unset($this->headers[$name]);
+        }
+        return $this;
     }
 
     /**
@@ -192,6 +236,10 @@ class Message implements MessageInterface
     public function getBody()
     {
         // TODO: Implement getBody() method.
+        if (!$this->body) {
+//            $this->body = new ;
+        }
+        return $this->body;
     }
 
     /**
@@ -210,5 +258,7 @@ class Message implements MessageInterface
     public function withBody(StreamInterface $body)
     {
         // TODO: Implement withBody() method.
+        $this->body = $body;
+        return $this;
     }
 }
