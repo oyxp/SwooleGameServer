@@ -45,11 +45,14 @@ class Dispatcher
             case FastDispatcher::NOT_FOUND:
                 // ... 404 Not Found
                 var_dump('NOT_FOUD');
+                $response->withStatus(404);
+                return null;
                 break;
             case FastDispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 // ... 405 Method Not Allowed
 //                $response
+                $response->withStatus(405);
                 return 'METHOD_NOT_ALLOWED';
                 break;
             case FastDispatcher::FOUND:
