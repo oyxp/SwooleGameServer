@@ -32,6 +32,12 @@ class Dispatcher
         });
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return mixed|null
+     * @throws AppException
+     */
     public function dispatch(Request $request, Response $response)
     {
         $httpMethod = $request->server('request_method');
@@ -44,16 +50,15 @@ class Dispatcher
         switch ($routeInfo[0]) {
             case FastDispatcher::NOT_FOUND:
                 // ... 404 Not Found
-                var_dump('NOT_FOUD');
                 $response->withStatus(404);
-                return null;
+                throw new AppException(404);
                 break;
             case FastDispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 // ... 405 Method Not Allowed
 //                $response
                 $response->withStatus(405);
-                return null;
+                throw new AppException(405);
                 break;
             case FastDispatcher::FOUND:
                 $handler = $routeInfo[1];
@@ -66,7 +71,8 @@ class Dispatcher
                     $ret = call_user_func_array([new $controller($request, $response), $action], $vars);
                     return $ret;
                 } else {
-
+                    $response->withStatus(500);
+                    throw new AppException(500);
                 }
                 break;
         }

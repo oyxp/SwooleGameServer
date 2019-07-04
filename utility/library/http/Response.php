@@ -10,6 +10,8 @@ class Response extends \gs\http\message\Response
      * @var \Swoole\Http\Response
      */
     private $swooleResponse;
+    private $isEnd = false;
+    private $content = null;
 
     public function __construct(\Swoole\Http\Response $response)
     {
@@ -26,22 +28,31 @@ class Response extends \gs\http\message\Response
     }
 
     /**
-     * @param null $message
+     * @param string $message
      */
-    public function write($message = null): void
+    public function write(string $message)
     {
+        if ($this->isEnd) {
+            return false;
+        }
+        $this->isEnd = true;
         $this->initResponse();
-        $this->swooleResponse->end($message);
+        return $this->swooleResponse->end($message);
     }
 
     /**
-     * @param $message
+     * @param array $message
+     * @return mixed
      */
-    public function writeJson($message = []): void
+    public function writeJson($message = [])
     {
+        if ($this->isEnd) {
+            return false;
+        }
+        $this->isEnd = true;
         $this->initResponse();
         $this->swooleResponse->header('Content-Type', 'application/json');
-        $this->swooleResponse->end(json_encode($message));
+        return $this->swooleResponse->end(json_encode($message));
     }
 
     /**
@@ -61,6 +72,14 @@ class Response extends \gs\http\message\Response
         foreach ($cookies as $cookie) {
             $this->swooleResponse->cookie(...$cookie);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnd()
+    {
+        return $this->isEnd;
     }
 
     /*

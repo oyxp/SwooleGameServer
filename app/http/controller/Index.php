@@ -13,10 +13,6 @@ class Index extends HttpController
      */
     public function index()
     {
-        $this->response->writeJson([
-            'code' => 0,
-            'msg'  => 'OK',
-            'data' => null
-        ]);
+        return __METHOD__;
     }
 }

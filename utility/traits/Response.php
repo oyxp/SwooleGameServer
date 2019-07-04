@@ -24,4 +24,22 @@ trait Response
             'd' => $data,
         ];
     }
+
+    public function httpSuccess($data = null, $msg = 'OK', $code = 0)
+    {
+        return [
+            'o' => $code,
+            'm' => $msg,
+            'd' => $data,
+        ];
+    }
+
+    public function httpError($code, $msg = '', $data = null)
+    {
+        return [
+            'o' => $code,
+            'm' => $msg,
+            'd' => $data,
+        ];
+    }
 }

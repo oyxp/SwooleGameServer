@@ -170,9 +170,13 @@ class Start extends Command
                     try {
                         $request = new Request($request);
                         $response = new \gs\http\Response($response);
-                        Dispatcher::getInstance()->dispatch($request, $response);
+                        $ret = Dispatcher::getInstance()->dispatch($request, $response);
+                        return $response->writeJson($this->httpSuccess($ret));
+                    } catch (AppException $appException) {
+                        return $response->writeJson($this->httpError($appException->getCode(), $appException->getMessage(), $appException->getData()));
                     } catch (\Throwable $throwable) {
-
+                        $response->withStatus(500);
+                        return $response->writeJson($this->httpError(-100, $throwable->getMessage()));
                     }
                 });
             });
