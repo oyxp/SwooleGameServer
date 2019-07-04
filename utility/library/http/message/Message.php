@@ -17,7 +17,13 @@ class Message implements MessageInterface
     private $headers = [];
     private $body;
 
-    public function __construct(array $headers, $body, $protocol = '1.1')
+    /**
+     * Message constructor.
+     * @param array $headers
+     * @param Stream $body
+     * @param string $protocol
+     */
+    public function __construct(array $headers, Stream $body, $protocol = '1.1')
     {
         $this->headers = $headers;
         $this->protocol = $protocol;
@@ -237,7 +243,7 @@ class Message implements MessageInterface
     {
         // TODO: Implement getBody() method.
         if (!$this->body) {
-//            $this->body = new ;
+            $this->body = new Stream();
         }
         return $this->body;
     }

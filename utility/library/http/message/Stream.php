@@ -14,6 +14,10 @@ use Psr\Http\Message\StreamInterface;
 class Stream implements StreamInterface
 {
 
+    public function __construct($stream = null)
+    {
+    }
+
     /**
      * Reads all data from the stream into a string, from the beginning to end.
      *
@@ -119,9 +123,9 @@ class Stream implements StreamInterface
      * If the stream is not seekable, this method will raise an exception;
      * otherwise, it will perform a seek(0).
      *
-     * @see seek()
-     * @link http://www.php.net/manual/en/function.fseek.php
      * @throws \RuntimeException on failure.
+     * @link http://www.php.net/manual/en/function.fseek.php
+     * @see seek()
      */
     public function rewind()
     {

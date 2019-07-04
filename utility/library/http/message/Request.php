@@ -5,15 +5,37 @@ namespace gs\http\message;
 
 
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 class Request extends Message implements RequestInterface
 {
 
-    public function __construct()
-    {
+    /**
+     * @var string
+     */
+    private $request_target;
+    /**
+     * @var string
+     */
+    private $method;
 
+    /**
+     * @var  UriInterface
+     */
+    private $uri;
+
+    /**
+     * Request constructor.
+     * @param array $headers
+     * @param Stream $body
+     * @param string $protocol
+     */
+    public function __construct($request_target, $method, UriInterface $uri, array $headers, Stream $body = null, $protocol = '1.1')
+    {
+        $this->request_target = $request_target;
+        $this->method = $method;
+        $this->uri = $uri;
+        parent::__construct($headers, $body, $protocol);
     }
 
     /**
@@ -35,6 +57,7 @@ class Request extends Message implements RequestInterface
     public function getRequestTarget()
     {
         // TODO: Implement getRequestTarget() method.
+        return $this->request_target;
     }
 
     /**
@@ -57,6 +80,8 @@ class Request extends Message implements RequestInterface
     public function withRequestTarget($requestTarget)
     {
         // TODO: Implement withRequestTarget() method.
+        $this->request_target = $requestTarget;
+        return $this;
     }
 
     /**
@@ -67,6 +92,7 @@ class Request extends Message implements RequestInterface
     public function getMethod()
     {
         // TODO: Implement getMethod() method.
+        return $this->method;
     }
 
     /**
@@ -87,6 +113,8 @@ class Request extends Message implements RequestInterface
     public function withMethod($method)
     {
         // TODO: Implement withMethod() method.
+        $this->method = $method;
+        return $this;
     }
 
     /**
@@ -101,6 +129,7 @@ class Request extends Message implements RequestInterface
     public function getUri()
     {
         // TODO: Implement getUri() method.
+        return $this->uri;
     }
 
     /**
@@ -136,5 +165,7 @@ class Request extends Message implements RequestInterface
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         // TODO: Implement withUri() method.
+        $this->uri = $uri;
+        return $this;
     }
 }
