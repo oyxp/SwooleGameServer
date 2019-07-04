@@ -11,7 +11,6 @@ class Response extends \gs\http\message\Response
      */
     private $swooleResponse;
     private $isEnd = false;
-    private $content = null;
 
     public function __construct(\Swoole\Http\Response $response)
     {
