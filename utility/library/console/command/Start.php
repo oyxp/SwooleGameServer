@@ -31,6 +31,9 @@ class Start extends Command
 {
     use Response;
 
+    /**
+     * 配置命令
+     */
     protected function configure()
     {
         $this->setName('app:start')
@@ -43,6 +46,7 @@ class Start extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|void|null
+     * @throws \ReflectionException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
