@@ -23,7 +23,7 @@ class Message implements MessageInterface
      * @param Stream $body
      * @param string $protocol
      */
-    public function __construct(array $headers, Stream $body, $protocol = '1.1')
+    public function __construct($headers = [], Stream $body = null, $protocol = '1.1')
     {
         $this->headers = $headers;
         $this->protocol = $protocol;
