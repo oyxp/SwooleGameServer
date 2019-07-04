@@ -16,6 +16,7 @@ class Response extends \gs\http\message\Response
     public function __construct(\Swoole\Http\Response $response)
     {
         $this->swooleResponse = $response;
+        $this->swooleResponse->header('Server', 'SwooleGameServer');
         parent::__construct();
     }
 
