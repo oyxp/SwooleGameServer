@@ -69,7 +69,6 @@ class Annotation
             $classes = $this->scanPhpFile($dir, $namespace);
             $this->parseAnnotations($classes);
         }
-        var_dump($this->definitions);
     }
 
     /**
@@ -116,7 +115,6 @@ class Annotation
                 }
                 // 解析方法注解
                 $sub_commands = $reader->getMethodAnnotations($method);
-                var_dump($sub_commands);
                 foreach ($sub_commands as $sub_command) {
                     if (empty($sub_command)) {
                         continue;
