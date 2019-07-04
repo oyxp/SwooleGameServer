@@ -170,8 +170,7 @@ class Start extends Command
                     try {
                         $request = new Request($request);
                         $response = new \gs\http\Response($response);
-                        $ret = Dispatcher::getInstance()->dispatch($request, $response);
-                        $response->write($ret);
+                        Dispatcher::getInstance()->dispatch($request, $response);
                     } catch (\Throwable $throwable) {
 
                     }

@@ -4,11 +4,12 @@
 namespace gs\http;
 
 
+use gs\http\message\ServerRequest;
 use gs\http\message\Stream;
 use gs\http\message\Uri;
 use traits\Singleton;
 
-class Request extends \gs\http\message\Request
+class Request extends ServerRequest
 {
     use Singleton;
     /**
@@ -32,7 +33,11 @@ class Request extends \gs\http\message\Request
         } else {
             $body = new Stream('');
         }
-        parent::__construct($request->server['request_uri'], $request->server['request_method'], $this->initUri(), $request->header, $body, $protocol);
+        parent::__construct($request->server, $request->server['request_uri'], $request->server['request_method'], $this->initUri(), $request->header, $body, $protocol);
+        $this->withCookieParams($request->cookie ?? []);
+        $this->withQueryParams($request->get ?? []);
+        $this->withUploadedFiles($request->files ?? []);
+        $this->withParsedBody($request->post ?? []);
     }
 
     /**
@@ -42,7 +47,7 @@ class Request extends \gs\http\message\Request
      */
     public function get($name, $default = null)
     {
-        return $this->swooleRequest->get[$name] ?? $default;
+        return $this->getQueryParams()[$name] ?? $default;
     }
 
     /**
@@ -52,7 +57,7 @@ class Request extends \gs\http\message\Request
      */
     public function post($name, $default = null)
     {
-        return $this->swooleRequest->post[$name] ?? $default;
+        return $this->getParsedBody()[$name] ?? $default;
     }
 
     /**
@@ -62,7 +67,7 @@ class Request extends \gs\http\message\Request
      */
     public function server($name, $default = null)
     {
-        return $this->swooleRequest->server[$name] ?? $default;
+        return $this->getServerParams()[$name] ?? $default;
     }
 
     /**

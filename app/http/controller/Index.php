@@ -4,14 +4,19 @@
 namespace app\http\controller;
 
 use gs\annotation\Route;
+use gs\http\HttpController;
 
-class Index
+class Index extends HttpController
 {
     /**
      * @Route(uri="/",method="GET")
      */
     public function index()
     {
-        return __METHOD__;
+        $this->response->writeJson([
+            'code' => 0,
+            'msg'  => 'OK',
+            'data' => null
+        ]);
     }
 }

@@ -53,7 +53,7 @@ class Dispatcher
                 // ... 405 Method Not Allowed
 //                $response
                 $response->withStatus(405);
-                return 'METHOD_NOT_ALLOWED';
+                return null;
                 break;
             case FastDispatcher::FOUND:
                 $handler = $routeInfo[1];
@@ -63,7 +63,7 @@ class Dispatcher
                     return $handler($vars);
                 } else if (false !== strpos($handler, '@')) {
                     list($controller, $action) = explode('@', $handler);
-                    $ret = call_user_func_array([new $controller(), $action], $vars);
+                    $ret = call_user_func_array([new $controller($request, $response), $action], $vars);
                     return $ret;
                 } else {
 

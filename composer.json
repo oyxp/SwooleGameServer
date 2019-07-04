@@ -22,7 +22,8 @@
     "doctrine/annotations": "^1.6",
     "ext-redis": "*",
     "nikic/fast-route": "^1.3",
-    "psr/http-message": "^1.0"
+    "psr/http-message": "^1.0",
+    "ext-json": "*"
   },
   "require-dev": {
     "swoole/ide-helper": "@dev"

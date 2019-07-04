@@ -17,6 +17,12 @@ class Response extends Message implements ResponseInterface
      * @var string
      */
     private $reasonPhrase = '';
+
+    /**
+     * @var array
+     */
+    private $cookies = [];
+
     /** @var array Map of standard HTTP status code/reason phrases */
     private static $phrases = [
         100 => 'Continue',
@@ -140,5 +146,22 @@ class Response extends Message implements ResponseInterface
     {
         // TODO: Implement getReasonPhrase() method.
         return $this->reasonPhrase;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     */
+    public function withCookie(array $cookie)
+    {
+        $this->cookies[] = $cookie;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookies()
+    {
+        return $this->cookies;
     }
 }
