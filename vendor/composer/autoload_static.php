@@ -45,6 +45,10 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
         ),
+        'M' => 
+        array (
+            'Medoo\\' => 6,
+        ),
         'F' => 
         array (
             'FastRoute\\' => 10,
@@ -109,6 +113,10 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'Medoo\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/catfan/medoo/src',
         ),
         'FastRoute\\' => 
         array (
