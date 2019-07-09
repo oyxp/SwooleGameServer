@@ -37,3 +37,13 @@ if (!function_exists('cache')) {
         return \gs\Cache::getInstance();
     }
 }
+
+if (!function_exists('db')) {
+    /**
+     * @return \Medoo\Medoo
+     */
+    function db()
+    {
+        return \gs\Db::getInstance();
+    }
+}

@@ -5,27 +5,27 @@ namespace gs;
 
 
 use gs\pool\AbstractPool;
+use Medoo\Medoo;
 use traits\Singleton;
 
 /**
- * Class Cache
+ * Class Db
  * @package gs
  */
-class Cache extends AbstractPool
+class Db extends AbstractPool
 {
     use Singleton;
 
+    /**
+     * Db constructor.
+     */
     public function __construct()
     {
-        if (!extension_loaded('redis')) {
-            throw  new \RuntimeException('no support redis');
-        }
-        $config = Config::getInstance()->pull('redis');
-        $driver = '\\gs\\cache\\' . $config['driver'];
-        if (!class_exists($driver)) {
-            throw new \RuntimeException('cache driver does not exists.');
-        }
-        parent::__construct($driver, $config['min_size'], $config['max_size'], $config);
+        $config = Config::getInstance()->pull('database');
+        $max = $config['max_size'] ?? 100;
+        $min = $config['min_size'] ?? 2;
+        unset($config['max_size'], $config['min_size']);
+        parent::__construct(Medoo::class, $min, $max, $config);
     }
 
     /**
@@ -36,15 +36,16 @@ class Cache extends AbstractPool
      */
     public function __call($name, $arguments)
     {
-        // TODO: Implement __call() method.
+        /** @var Medoo $object */
         $object = $this->pop();
         try {
             $ret = call_user_func_array([$object, $name], $arguments);
             $this->recycle($object);
             return $ret;
-        } catch (\Throwable$throwable) {
+        } catch (\Throwable $throwable) {
             $this->recycle($object);
             throw $throwable;
         }
     }
+
 }

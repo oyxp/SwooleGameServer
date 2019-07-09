@@ -4,7 +4,9 @@
 namespace app;
 
 use gs\Annotation;
+use gs\Cache;
 use gs\Config;
+use gs\Db;
 use gs\Error;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use traits\Singleton;
@@ -47,6 +49,7 @@ class App
         $this->initLogAndTempDir();
         $this->registerErrorExceptionHandle();
         $this->collectAnnotation();
+        $this->initPool();
     }
 
     /**收集注解
@@ -56,6 +59,15 @@ class App
     public function collectAnnotation()
     {
         Annotation::getInstance()->collectDefinitions();
+    }
+
+    /**
+     *初始化连接池
+     */
+    public function initPool()
+    {
+        Cache::getInstance();
+        Db::getInstance();
     }
 
     /**
