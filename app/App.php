@@ -49,7 +49,7 @@ class App
         $this->initLogAndTempDir();
         $this->registerErrorExceptionHandle();
         $this->collectAnnotation();
-        $this->initPool();
+//        $this->initPool();
     }
 
     /**收集注解
@@ -66,7 +66,7 @@ class App
      */
     public function initPool()
     {
-//        Cache::getInstance();
+        Cache::getInstance();
         Db::getInstance();
     }
 
