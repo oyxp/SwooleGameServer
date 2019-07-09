@@ -77,17 +77,29 @@ class Redis implements InterfaceRedis
     public function __call($name, $arguments)
     {
         // TODO: Implement __call() method.
+        return $this->callRedisApi($name, $arguments);
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     * @throws \RedisClusterException
+     * @throws \RedisException
+     * @throws \Throwable
+     */
+    private function callRedisApi($name, $arguments)
+    {
         try {
             $ret = call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Throwable $throwable) {
             if (false !== strpos($throwable->getMessage(), 'close')) {
                 $this->connect();
-                $ret = call_user_func_array([$this->redis, $name], $arguments);
+                return $this->callRedisApi($name, $arguments);
             } else {
                 throw $throwable;
             }
         }
         return $ret;
     }
-
 }
