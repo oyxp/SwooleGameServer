@@ -7,6 +7,7 @@ return [
     'mode'            => SWOOLE_PROCESS,
     'sock_type'       => SWOOLE_SOCK_TCP,
     'enable_http'     => env('ENABLE_HTTP', true),//是否开启http
+    'enable_cache'    => env('ENABLE_CACHE', true),//是否开启http
     'opcode'          => WEBSOCKET_OPCODE_TEXT,//WEBSOCKET_OPCODE_BINARY 可以发送text或二进制
     'pkg_encode_func' => 'json_encode',//打包函数
     'pkg_decode_func' => 'json_decode',//解包函数

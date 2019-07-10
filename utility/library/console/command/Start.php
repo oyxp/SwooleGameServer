@@ -116,7 +116,9 @@ class Start extends Command
                 }
             }
             //初始化连接池
-            Cache::getInstance();
+            if ($config['enable_cache']) {
+                Cache::getInstance();
+            }
             Db::getInstance();
             //触发自定义onworker start回调
             $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_WORKER_START);

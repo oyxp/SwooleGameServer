@@ -9,7 +9,6 @@ trait Singleton
     public static function getInstance(...$args)
     {
         if (!(self::$instance instanceof static)) {
-            var_dump('NEW:'.static::class);
             self::$instance = new static(...$args);
         }
         return self::$instance;
