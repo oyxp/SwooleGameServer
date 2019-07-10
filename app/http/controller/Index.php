@@ -21,8 +21,6 @@ class Index extends HttpController
             'id'   => time() + mt_rand(0, 999999),
             'name' => time()
         ]);
-        $ret1 = $db->select('user', '*');
-        var_dump($ret1);
         return $ret;
     }
 
