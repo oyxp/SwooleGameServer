@@ -2,22 +2,22 @@
 
 return [
     // required
-    'database_type' => 'mysql',
-    'database_name' => 'test',
-    'server'        => 'percona',
-    'username'      => 'root',
-    'password'      => 'root',
+    'database_type' => env('DB_TYPE', 'mysql'),
+    'database_name' => env('DB_DATABASE', 'pet_planet'),
+    'server'        => env('DB_HOST', '127.0.0.1'),
+    'username'      => env('DB_USERNAME', 'root'),
+    'password'      => env('DB_PASSWORD', 'root'),
 
     // [optional]
     'charset'       => 'utf8mb4',
     'collation'     => 'utf8mb4_general_ci',
-    'port'          => 3306,
+    'port'          => env('DB_PORT', 3306),
 
     // [optional] Table prefix
-    'prefix'        => '',
+    'prefix'        => env('DB_PREFIX', ''),
 
     // [optional] Enable logging (Logging is disabled by default for better performance)
-    'logging'       => true,
+    'logging'       => env('DB_LOGGING', false),
 
     // [optional] MySQL socket (shouldn't be used with server and port)
 //    'socket'        => '',///tmp/mysql.sock

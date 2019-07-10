@@ -7,8 +7,10 @@ namespace gs\console\command;
 use app\App;
 use gs\Annotation;
 use gs\AppException;
+use gs\Cache;
 use gs\CmdParser;
 use gs\Config;
+use gs\Db;
 use gs\Dispatcher;
 use gs\http\Request;
 use gs\RequestContext;
@@ -113,6 +115,9 @@ class Start extends Command
                     cli_set_process_title($config['name'] . ' worker process');
                 }
             }
+            //初始化连接池
+            Cache::getInstance();
+            Db::getInstance();
             //触发自定义onworker start回调
             $events = Annotation::getInstance()->getDefinitions('custom_event.' . CustomEvent::ON_WORKER_START);
             foreach ($events as $event) {

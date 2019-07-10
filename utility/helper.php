@@ -1,12 +1,16 @@
 <?php
 
+use gs\helper\StringHelper;
+
 if (!function_exists('env')) {
     function env($key, $default = null)
     {
         $value = getenv($key);
+
         if ($value === false) {
-            return $default;
+            return value($default);
         }
+
         switch (strtolower($value)) {
             case 'true':
             case '(true)':
@@ -19,8 +23,17 @@ if (!function_exists('env')) {
                 return '';
             case 'null':
             case '(null)':
-                return null;
+                return;
         }
+
+        if (strlen($value) > 1 && StringHelper::startsWith($value, '"') && StringHelper::endsWith($value, '"')) {
+            return substr($value, 1, -1);
+        }
+
+        if (defined($value)) {
+            $value = constant($value);
+        }
+
         return $value;
     }
 }
@@ -45,5 +58,19 @@ if (!function_exists('db')) {
     function db()
     {
         return \gs\Db::getInstance();
+    }
+}
+
+
+if (!function_exists('value')) {
+    /**
+     * Return the callback value
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    function value($value)
+    {
+        return $value instanceof \Closure ? $value() : $value;
     }
 }

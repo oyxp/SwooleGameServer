@@ -3,6 +3,7 @@
 
 namespace app\http\controller;
 
+use app\App;
 use gs\annotation\Route;
 use gs\http\HttpController;
 use Medoo\Medoo;
@@ -53,5 +54,15 @@ class Index extends HttpController
                 'id' => 2
             ]),
         ];
+    }
+
+    /**
+     * @Route(uri="/cache",method="GET")
+     */
+    public function testCache()
+    {
+        var_dump(App::$swooleServer->worker_id);
+        var_dump('cache hash:' . spl_object_hash(cache()));
+        return 'cache hash:' . (cache()->set('time', time()));
     }
 }

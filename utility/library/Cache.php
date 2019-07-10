@@ -15,6 +15,9 @@ class Cache extends AbstractPool
 {
     use Singleton;
 
+    /**
+     * Cache constructor.
+     */
     public function __construct()
     {
         if (!extension_loaded('redis')) {

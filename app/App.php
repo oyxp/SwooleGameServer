@@ -15,7 +15,7 @@ class App
 {
     use Singleton;
     /**
-     * @var
+     * @var \Swoole\Server
      */
     public static $swooleServer;
     /**所有单例对象
@@ -49,7 +49,6 @@ class App
         $this->initLogAndTempDir();
         $this->registerErrorExceptionHandle();
         $this->collectAnnotation();
-        $this->initPool();
     }
 
     /**收集注解
@@ -59,15 +58,6 @@ class App
     public function collectAnnotation()
     {
         Annotation::getInstance()->collectDefinitions();
-    }
-
-    /**
-     *初始化连接池
-     */
-    public function initPool()
-    {
-//        Cache::getInstance();
-        Db::getInstance();
     }
 
     /**

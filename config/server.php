@@ -2,8 +2,8 @@
 
 return [
     'name'            => 'SwooleGameServer',//服务器名
-    'host'            => '0.0.0.0',
-    'port'            => 8585,
+    'host'            => env('SERVER_HOST', '0.0.0.0'),
+    'port'            => env('SERVER_PORT', 8585),
     'mode'            => SWOOLE_PROCESS,
     'sock_type'       => SWOOLE_SOCK_TCP,
     'enable_http'     => env('ENABLE_HTTP', true),//是否开启http
