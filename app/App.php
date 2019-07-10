@@ -66,7 +66,7 @@ class App
      */
     public function initPool()
     {
-        Cache::getInstance();
+//        Cache::getInstance();
         Db::getInstance();
     }
 
