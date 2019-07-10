@@ -5,7 +5,7 @@ namespace gs\pool;
 
 
 use app\App;
-use Swoole\Coroutine\Channel;
+use SplDoublyLinkedList;
 
 /**池
  * Class AbstractPool
@@ -14,7 +14,7 @@ use Swoole\Coroutine\Channel;
 class AbstractPool
 {
     /**当前存放所有的channel
-     * @var Channel
+     * @var \SplQueue
      */
     protected $pool;
     /**最小实例数
@@ -51,7 +51,8 @@ class AbstractPool
      */
     protected function __construct($class, $min, $max, ...$args)
     {
-        $this->pool = new Channel($max);
+        $this->pool = new \SplQueue();
+        $this->pool->setIteratorMode(SplDoublyLinkedList::IT_MODE_DELETE);//遍历后删除
         $this->min = $min;
         $this->max = $max;
         $this->args = $args;
@@ -76,7 +77,7 @@ class AbstractPool
      */
     protected function push($object)
     {
-        return $this->pool->push($object);
+        $this->pool->enqueue($object);
     }
 
     /**
@@ -84,15 +85,14 @@ class AbstractPool
      */
     protected function pop()
     {
-        $object = $this->pool->pop(0.1);
-        if (false === $object) {
-            //当前正在使用的数量+闲置的数量 < 最大数
-            if (($this->usingNum + $this->getCurrentSize()) < $this->max) {
-                $this->create();
-                return $this->pop();
-            } else {
-                throw new \RuntimeException('Pool reach max size.');
-            }
+        if (!$this->pool->isEmpty()) {
+            $object = $this->pool->dequeue();
+        } else if (($this->usingNum + $this->getCurrentSize()) < $this->max) {
+            //当前正在使用的数量+闲置的数量 < 最大数 创建新的对象
+            $this->create();
+            return $this->pop();
+        } else {
+            throw new \RuntimeException('Pool reach max size.');
         }
         $this->usingNum++;
         return $object;
@@ -112,6 +112,6 @@ class AbstractPool
      */
     protected function getCurrentSize()
     {
-        return $this->pool->length();
+        return $this->pool->count();
     }
 }
