@@ -55,6 +55,24 @@ class Index extends HttpController
     }
 
     /**
+     * @return bool
+     * @throws \Exception
+     * @Route(uri="/test_for_update",method="GET")
+     */
+    public function testSelectForUpdate()
+    {
+        $ret = db()->action(function (Medoo $db) {
+            $data = $db->get('user', '*', Medoo::raw('WHERE id = 1 FOR UPDATE'));
+            sleep(10);
+            $db->update('user', [
+                'name' => 'snailZED'
+            ], ['id' => $data['id']]);
+            return true;
+        });
+        return $ret;
+    }
+
+    /**
      * @Route(uri="/cache",method="GET")
      */
     public function testCache()
