@@ -74,3 +74,10 @@ if (!function_exists('value')) {
         return $value instanceof \Closure ? $value() : $value;
     }
 }
+
+if (!function_exists('config')) {
+    function config($key, $default = null)
+    {
+        return \gs\Config::getInstance()->get($key, $default);
+    }
+}
