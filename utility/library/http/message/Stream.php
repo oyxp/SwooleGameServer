@@ -13,19 +13,28 @@ use Psr\Http\Message\StreamInterface;
 
 class Stream implements StreamInterface
 {
+    /**
+     * @var string
+     */
+    protected $contents;
 
-    public function __construct($stream = null)
+    /**
+     * @var string
+     */
+    protected $size;
+
+    public function __construct(string $contents = '')
     {
+        $this->contents = $contents;
+        $this->size = strlen($this->contents);
     }
+
 
     /**
      * Reads all data from the stream into a string, from the beginning to end.
-     *
      * This method MUST attempt to seek to the beginning of the stream before
      * reading data and read the stream until the end is reached.
-     *
      * Warning: This could attempt to load a large amount of data into memory.
-     *
      * This method MUST NOT raise an exception in order to conform with PHP's
      * string casting operations.
      *
@@ -34,7 +43,11 @@ class Stream implements StreamInterface
      */
     public function __toString()
     {
-        // TODO: Implement __toString() method.
+        try {
+            return $this->getContents();
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**
@@ -44,19 +57,18 @@ class Stream implements StreamInterface
      */
     public function close()
     {
-        // TODO: Implement close() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
      * Separates any underlying resources from the stream.
-     *
      * After the stream has been detached, the stream is in an unusable state.
      *
      * @return resource|null Underlying PHP stream, if any
      */
     public function detach()
     {
-        // TODO: Implement detach() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -66,7 +78,10 @@ class Stream implements StreamInterface
      */
     public function getSize()
     {
-        // TODO: Implement getSize() method.
+        if (!$this->size) {
+            $this->size = strlen($this->getContents());
+        }
+        return $this->size;
     }
 
     /**
@@ -77,7 +92,7 @@ class Stream implements StreamInterface
      */
     public function tell()
     {
-        // TODO: Implement tell() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -87,7 +102,7 @@ class Stream implements StreamInterface
      */
     public function eof()
     {
-        // TODO: Implement eof() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -97,7 +112,7 @@ class Stream implements StreamInterface
      */
     public function isSeekable()
     {
-        // TODO: Implement isSeekable() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -114,12 +129,11 @@ class Stream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        // TODO: Implement seek() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
      * Seek to the beginning of the stream.
-     *
      * If the stream is not seekable, this method will raise an exception;
      * otherwise, it will perform a seek(0).
      *
@@ -129,7 +143,7 @@ class Stream implements StreamInterface
      */
     public function rewind()
     {
-        // TODO: Implement rewind() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -139,7 +153,7 @@ class Stream implements StreamInterface
      */
     public function isWritable()
     {
-        // TODO: Implement isWritable() method.
+        return false;
     }
 
     /**
@@ -151,7 +165,7 @@ class Stream implements StreamInterface
      */
     public function write($string)
     {
-        // TODO: Implement write() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -161,7 +175,7 @@ class Stream implements StreamInterface
      */
     public function isReadable()
     {
-        // TODO: Implement isReadable() method.
+        return true;
     }
 
     /**
@@ -176,7 +190,7 @@ class Stream implements StreamInterface
      */
     public function read($length)
     {
-        // TODO: Implement read() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 
     /**
@@ -188,12 +202,11 @@ class Stream implements StreamInterface
      */
     public function getContents()
     {
-        // TODO: Implement getContents() method.
+        return $this->contents;
     }
 
     /**
      * Get stream metadata as an associative array or retrieve a specific key.
-     *
      * The keys returned are identical to the keys returned from PHP's
      * stream_get_meta_data() function.
      *
@@ -205,6 +218,6 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        // TODO: Implement getMetadata() method.
+        throw new \BadMethodCallException('Not implemented');
     }
 }

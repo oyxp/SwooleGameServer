@@ -65,6 +65,21 @@ class Request extends ServerRequest
      * @param null $default
      * @return |null
      */
+    public function json($name, $default = null)
+    {
+        $raw_body = $this->getBody()->getContents();
+        if (empty($raw_body)) {
+            return $default;
+        }
+        $raw_body = \json_decode($raw_body, true);
+        return isset($raw_body[$name]) ? $raw_body[$name] : $default;
+    }
+
+    /**
+     * @param $name
+     * @param null $default
+     * @return |null
+     */
     public function server($name, $default = null)
     {
         return $this->getServerParams()[$name] ?? $default;
