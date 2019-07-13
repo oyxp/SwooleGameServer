@@ -61,4 +61,13 @@ class Config
     {
         return isset($this->config[$key]) ? $this->config[$key] : [];
     }
+
+    /**动态设置配置，会覆盖相同的文件配置 ,存储在app配置下
+     * @param $name
+     * @param $value
+     */
+    public function set($name, $value)
+    {
+        $this->config['app'][$name] = $value;
+    }
 }
