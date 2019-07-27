@@ -10,11 +10,18 @@ use gs\annotation\Command;
 use gs\annotation\Listener;
 use gs\annotation\Process;
 use gs\annotation\Route;
+use gs\annotation\Task;
 use gs\helper\ComposerHelper;
 use interfaces\event\CustomEvent;
 use interfaces\event\SwooleEvent;
+use interfaces\InterfaceProcess;
+use interfaces\InterfaceTask;
 use traits\Singleton;
 
+/**
+ * Class Annotation
+ * @package gs
+ */
 class Annotation
 {
     use Singleton;
@@ -43,6 +50,9 @@ class Annotation
         'package'
     ];
 
+    /**
+     * Annotation constructor.
+     */
     public function __construct()
     {
         //这里进行命令扫描和解析
@@ -98,12 +108,16 @@ class Annotation
                         } else if ($reflectionClass->implementsInterface(CustomEvent::class)) {
                             $this->definitions['custom_event'][$anno->getEvent()][] = $reflectionClass->getName();
                         }
-                    } else if ($anno instanceof Process) {
+                    } else if ($anno instanceof Process && $reflectionClass->implementsInterface(InterfaceProcess::class)) {
                         //自定义进程
                         $this->definitions['process'][] = [
                             'class' => $reflectionClass->getName(),
                             'name'  => $anno->getName(),
+                            'co'    => $anno->getCo(),
                         ];
+                    } else if ($anno instanceof Task && $reflectionClass->hasMethod('handle')) {
+                        //自定义任务
+                        $this->definitions['task'][$anno->getName()] = $reflectionClass->getName();
                     }
                 }
             }
@@ -157,6 +171,24 @@ class Annotation
             return $definitions;
         }
         return $this->definitions;
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function getCommand($code)
+    {
+        return $this->definitions['command'][$code] ?? false;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function getTask($name)
+    {
+        return $this->definitions['task'][$name] ?? false;
     }
 
     /**

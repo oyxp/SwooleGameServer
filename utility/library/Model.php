@@ -4,6 +4,9 @@
 namespace gs;
 
 
+use gs\helper\StringHelper;
+use gs\helper\TimeHelper;
+
 /**
  * Class Model
  * @package gs
@@ -15,7 +18,8 @@ class Model
      */
     public static function getTable()
     {
-        return strtolower(substr(static::class, strrpos(static::class, '\\') + 1));
+        $class = substr(static::class, strrpos(static::class, '\\') + 1);
+        return StringHelper::snake($class);
     }
 
 
@@ -25,6 +29,7 @@ class Model
      */
     public static function insert($datas)
     {
+        $datas['insert_time'] = TimeHelper::getMilliSecond();
         return db()->insert(self::getTable(), $datas);
     }
 
@@ -35,6 +40,7 @@ class Model
      */
     public static function update($data, $where = null)
     {
+        $data['update_time'] = TimeHelper::getMilliSecond();
         return db()->update(self::getTable(), $data, $where);
     }
 
@@ -143,5 +149,37 @@ class Model
     public static function sum($join = null, $column = null, $where = null)
     {
         return db()->sum(self::getTable(), $join, $column, $where);
+    }
+
+    /**返回一列数据  [0=>data0,1=>data1]  只能选择一列
+     * @param $join
+     * @param null $columns
+     * @param null $where
+     * @return array|bool
+     */
+    public static function column($join, $columns = null, $where = null)
+    {
+        return db()->select(self::getTable(), $join, $columns, $where);
+    }
+
+    /**返回一条记录中的某个字段值，只能选择一个字段
+     * @param null $join
+     * @param null $columns
+     * @param null $where
+     * @return array|mixed
+     */
+    public static function value($join = null, $columns = null, $where = null)
+    {
+        return db()->get(self::getTable(), $join, $columns, $where);
+    }
+
+    /**
+     * @param $query
+     * @param array $map
+     * @return bool|\PDOStatement
+     */
+    public static function query($query, $map = [])
+    {
+        return db()->query($query, $map);
     }
 }

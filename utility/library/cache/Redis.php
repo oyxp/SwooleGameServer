@@ -21,11 +21,17 @@ class Redis implements InterfaceRedis
         'max_size'        => 10,//最大连接数
         'min_size'        => 2,//最小连接数
         'persistent'      => true,
+        'prefix'          => '',//前缀
     ];
     /**
-     * @var \RedisCluster
+     * @var \Redis
      */
     private $redis;
+
+    /**是否协程redis
+     * @var bool
+     */
+    private $isCoroutine = false;
 
     /**
      * RedisCluster constructor.
@@ -53,14 +59,19 @@ class Redis implements InterfaceRedis
             $this->redis = new \Redis();
             list($host, $port) = explode(':', $this->config['uri'][0]);
             $this->redis->connect($host, $port, $this->config['connect_timeout'], null, 0, $this->config['read_timout']);
+            if (!empty($this->config['prefix']) && is_string($this->config['prefix'])) {
+                $this->redis->setOption(\Redis::OPT_PREFIX, $this->config['prefix']);
+            }
         } else {
             $this->redis = new \Swoole\Coroutine\Redis();
             list($host, $port) = explode(':', $this->config['uri'][0]);
-            $this->redis->connect($host, $port);
             $this->redis->setOptions([
-                'connect_timeout' => $this->config['connect_timeout'],
-                'timeout'         => $this->config['read_timout'],
+                'connect_timeout'    => $this->config['connect_timeout'],
+                'timeout'            => $this->config['read_timout'],
+                'compatibility_mode' => true,
             ]);
+            $this->redis->connect($host, $port);
+            $this->isCoroutine = true;
         }
         if (!$this->redis) {
             throw new \RedisException('connect redis error.');
@@ -88,12 +99,16 @@ class Redis implements InterfaceRedis
      * @throws \RedisException
      * @throws \Throwable
      */
-    private function callRedisApi($name, $arguments)
+    public function callRedisApi($name, $arguments)
     {
         try {
+            //默认$arguments[0]为redis key
+            if ($this->isCoroutine) {
+                $arguments[0] = $this->config['prefix'] . $arguments[0];
+            }
             $ret = call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Throwable $throwable) {
-            if (false !== strpos($throwable->getMessage(), 'close')) {
+            if ($this->isBreak($throwable->getMessage())) {
                 $this->connect();
                 return $this->callRedisApi($name, $arguments);
             } else {
@@ -101,5 +116,43 @@ class Redis implements InterfaceRedis
             }
         }
         return $ret;
+    }
+
+    /**
+     * @param $msg
+     * @return bool
+     */
+    public function isBreak($msg)
+    {
+        $infos = [
+            'went away',
+            'close',
+            'gone away'
+        ];
+        foreach ($infos as $info) {
+            if (false !== stripos($msg, $info)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        if ($this->isCoroutine) {
+            return true;
+        }
+        try {
+            if ('+PONG' !== $this->redis->ping()) {
+                throw new \RuntimeException('Connection lost');
+            }
+            $connected = true;
+        } catch (\Throwable $throwable) {
+            $connected = false;
+        }
+        return $connected;
     }
 }

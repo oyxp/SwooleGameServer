@@ -25,7 +25,8 @@
     "psr/http-message": "^1.0",
     "ext-json": "*",
     "catfan/medoo": "^1.6",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-swoole": ">=4.4.0"
   },
   "require-dev": {
     "swoole/ide-helper": "@dev"

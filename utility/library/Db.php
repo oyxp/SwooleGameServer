@@ -4,17 +4,20 @@
 namespace gs;
 
 
-use gs\pool\AbstractPool;
+use gs\pool\AbstractChannelPool;
 use Medoo\Medoo;
+use Swoole\Coroutine;
 use traits\Singleton;
 
 /**
  * Class Db
  * @package gs
  */
-class Db extends AbstractPool
+class Db extends AbstractChannelPool
 {
     use Singleton;
+
+    private $connections = [];
 
     /**
      * Db constructor.
@@ -24,8 +27,10 @@ class Db extends AbstractPool
         $config = Config::getInstance()->pull('database');
         $max = $config['max_size'] ?? 100;
         $min = $config['min_size'] ?? 2;
-        unset($config['max_size'], $config['min_size']);
-        parent::__construct(Medoo::class, $min, $max, $config);
+        $idel_time = $config['max_idel_time'] ?? 60;
+        $interval_check_time = $config['interval_check_time'] ?? 60;
+        unset($config['max_size'], $config['min_size'], $config['max_idel_time'], $config['interval_check_time']);
+        parent::__construct(Medoo::class, $min, $max, $idel_time, $interval_check_time, $config);
     }
 
     /**
@@ -48,6 +53,10 @@ class Db extends AbstractPool
      */
     private function callDbMethod($name, $arguments)
     {
+        $object = $this->connections[Coroutine::getCid()] ?? false;
+        if (empty(!$object) && $object instanceof Medoo) {
+            return call_user_func_array([$object, $name], $arguments);
+        }
         $object = $this->pop();
         try {
             $ret = call_user_func_array([$object, $name], $arguments);
@@ -56,7 +65,7 @@ class Db extends AbstractPool
         } catch (\Throwable $throwable) {
             if ($this->isBreak($throwable)) {
                 unset($object);
-                $this->create();
+                $this->push($this->create());
                 return $this->callDbMethod($name, $arguments);
             }
             $this->recycle($object);
@@ -92,4 +101,56 @@ class Db extends AbstractPool
         return false;
     }
 
+    /**判断实例是否有效
+     * @return bool
+     */
+    public function isValid($object): bool
+    {
+        // TODO: Implement isValid() method.
+        return true;
+    }
+
+    /**
+     * @param callable $callable
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function transaction(callable $callable)
+    {
+        $object = $this->pop();
+        $this->connections[Coroutine::getCid()] = $object;
+        try {
+            $object->pdo->beginTransaction();
+            $ret = $callable();
+            $object->pdo->commit();
+            $this->recycle($object);
+            unset($this->connections[Coroutine::getCid()]);
+            return $ret;
+        } catch (AppException $appException) {
+            $object->pdo->rollBack();
+            $this->recycle($object);
+            unset($this->connections[Coroutine::getCid()]);
+            throw $appException;
+        } catch (\Throwable $throwable) {
+            if ($this->isBreak($throwable)) {
+                unset($object);
+                unset($this->connections[Coroutine::getCid()]);
+                $this->push($this->create());
+                return $this->transaction($callable);
+            }
+            $object->pdo->rollBack();
+            $this->recycle($object);
+            unset($this->connections[Coroutine::getCid()]);
+            throw $throwable;
+        }
+    }
+
+    /**
+     * 获取新的实例,不归连接池管理
+     * @return mixed
+     */
+    public function newInstance()
+    {
+        return new $this->class(...($this->args));
+    }
 }

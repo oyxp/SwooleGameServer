@@ -7,24 +7,20 @@ namespace gs\annotation;
 use Doctrine\Common\Annotations\Annotation\Target;
 
 /**
- * Class Process
+ * Class Task
  * @package gs\annotation
  * @Annotation
  * @Target("CLASS")
  */
-class Process
+class Task
 {
     /**
-     * @var string
+     * @var mixed
      */
     private $name;
-    /**
-     * @var bool
-     */
-    private $co = true;
 
     /**
-     * Process constructor.
+     * Task constructor.
      * @param array $values
      */
     public function __construct(array $values)
@@ -35,25 +31,13 @@ class Process
         if (isset($values['name'])) {
             $this->name = $values['name'];
         }
-        if (isset($values['co'])) {
-            $this->co = true;
-        }
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getName(): ?string
+    public function getName()
     {
         return $this->name;
     }
-
-    /**
-     * @return bool
-     */
-    public function getCo()
-    {
-        return $this->co;
-    }
-
 }

@@ -171,9 +171,6 @@ class Message implements MessageInterface
     public function withHeader($name, $value)
     {
         // TODO: Implement withHeader() method.
-        if (!is_array($value)) {
-            $value = [$value];
-        }
         $name = strtolower($name);
         if (isset($this->headers[$name]) && $this->headers[$name] === $value) {
             return $this;

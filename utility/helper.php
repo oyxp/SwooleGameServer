@@ -43,7 +43,7 @@ if (!function_exists('env')) {
  */
 if (!function_exists('cache')) {
     /**
-     * @return \Redis|\RedisCluster|\Swoole\Coroutine\Redis
+     * @return \Redis|\RedisCluster|\Swoole\Coroutine\Redis|\gs\Cache
      */
     function cache()
     {
@@ -53,7 +53,7 @@ if (!function_exists('cache')) {
 
 if (!function_exists('db')) {
     /**
-     * @return \Medoo\Medoo
+     * @return \Medoo\Medoo | \gs\Db
      */
     function db()
     {
@@ -76,8 +76,29 @@ if (!function_exists('value')) {
 }
 
 if (!function_exists('config')) {
-    function config($key, $default = null)
+    /**
+     * @return \gs\Config
+     */
+    function config()
     {
-        return \gs\Config::getInstance()->get($key, $default);
+        return \gs\Config::getInstance();
+    }
+}
+
+if (!function_exists('getServerAddr')) {
+    /**
+     * @return string
+     */
+    function getServerAddr()
+    {
+        static $server_ip = '';
+        if (!empty($server_ip)) {
+            return $server_ip;
+        }
+        $port = config()->get('server.port');
+        /** @var  array $local_ips */
+        $local_ips = swoole_get_local_ip();
+        $server_ip = array_pop($local_ips) . ':' . $port;//本机地址
+        return $server_ip;
     }
 }

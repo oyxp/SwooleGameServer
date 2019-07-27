@@ -27,11 +27,22 @@ class RedisCluster implements InterfaceRedis
         'max_size'        => 10,//最大连接数
         'min_size'        => 2,//最小连接数
         'persistent'      => true,
+        'prefix'          => '',//前缀
     ];
     /**
      * @var \RedisCluster
      */
     private $redis;
+
+    /**是否协程redis
+     * @var bool
+     */
+    private $isCoroutine = false;
+
+    /**
+     * @var string
+     */
+    private $nodeParams = '';
 
     /**
      * RedisCluster constructor.
@@ -61,13 +72,24 @@ class RedisCluster implements InterfaceRedis
                 throw new \RedisException('connect redis error.');
             }
             $this->redis->setOption(\RedisCluster::OPT_SLAVE_FAILOVER, \RedisCluster::FAILOVER_DISTRIBUTE);
+            if (!empty($this->config['prefix']) && is_string($this->config['prefix'])) {
+                $this->redis->setOption(\Redis::OPT_PREFIX, $this->config['prefix']);
+            }
+            $this->nodeParams = $this->config['uri'][0];
         } else {
             $this->redis = new Redis();
-            list($host, $port) = explode(':', $this->config['uri'][array_rand($this->config['uri'])]);
+            $this->nodeParams = $this->config['uri'][array_rand($this->config['uri'])];
+            list($host, $port) = explode(':', $this->nodeParams);
+            $this->redis->setOptions([
+                'connect_timeout'    => $this->config['connect_timeout'],
+                'timeout'            => $this->config['read_timout'],
+                'compatibility_mode' => true,
+            ]);
             $this->redis->connect($host, $port);
             if (!$this->redis) {
                 throw new \RedisException('connect redis error.');
             }
+            $this->isCoroutine = true;
         }
     }
 
@@ -81,12 +103,30 @@ class RedisCluster implements InterfaceRedis
     public function __call($name, $arguments)
     {
         // TODO: Implement __call() method.
+        return $this->callRedisApi($name, $arguments);
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     * @throws \RedisClusterException
+     * @throws \RedisException
+     * @throws \Throwable
+     */
+    public function callRedisApi($name, $arguments)
+    {
+        // TODO: Implement callRedisApi() method.
         try {
+            //默认$arguments[0]为redis key
+            if ($this->isCoroutine) {
+                $arguments[0] = $this->config['prefix'] . $arguments[0];
+            }
             $ret = call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Throwable $throwable) {
-            if (false !== strpos($throwable->getMessage(), 'close')) {
+            if ($this->isBreak($throwable->getMessage())) {
                 $this->connect();
-                $ret = call_user_func_array([$this->redis, $name], $arguments);
+                return $this->callRedisApi($name, $arguments);
             } else {
                 throw $throwable;
             }
@@ -94,4 +134,41 @@ class RedisCluster implements InterfaceRedis
         return $ret;
     }
 
+    /**
+     * @param $msg
+     * @return bool
+     */
+    public function isBreak($msg)
+    {
+        $infos = [
+            'went away',
+            'close',
+            'gone away'
+        ];
+        foreach ($infos as $info) {
+            if (false !== stripos($msg, $info)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        if ($this->isCoroutine) {
+            return true;
+        }
+        try {
+            if ('+PONG' !== $this->redis->ping($this->nodeParams)) {
+                throw new \RuntimeException('Connection lost');
+            }
+            $connected = true;
+        } catch (\Throwable $throwable) {
+            $connected = false;
+        }
+        return $connected;
+    }
 }

@@ -16,18 +16,33 @@ use gs\http\Request;
 use gs\http\Response;
 use traits\Singleton;
 
+/**
+ * Class Dispatcher
+ * @package gs
+ */
 class Dispatcher
 {
     use Singleton;
+    /**
+     * @var FastDispatcher
+     */
     private $dispatcher;
 
+    /**
+     * Dispatcher constructor.
+     */
     public function __construct()
     {
         $this->dispatcher = simpleDispatcher(function (RouteCollector $r) {
             $routers = Annotation::getInstance()->getDefinitions('router');
             foreach ($routers as $router) {
-                list($method, $uri, $handle) = $router;
-                $r->addRoute($method, $uri, $handle);
+                list($method, $uri, $handler) = $router;
+                if (is_callable($handler)) {
+                    $r->addRoute($method, $uri, $handler);
+                } else if (is_string($handler) && false !== strpos($handler, '@')) {
+                    $handler = explode('@', $handler);
+                    $r->addRoute($method, $uri, $handler);
+                }
             }
         });
     }
@@ -64,12 +79,12 @@ class Dispatcher
                 $handler = $routeInfo[1];
                 $vars = $routeInfo[2];
                 // ... call $handler with $vars
-                if (is_callable($handler)) {
-                    return $handler($vars);
-                } else if (false !== strpos($handler, '@')) {
-                    list($controller, $action) = explode('@', $handler);
+                if (is_array($handler)) {
+                    list($controller, $action) = $handler;
                     $ret = call_user_func_array([new $controller($request, $response), $action], $vars);
                     return $ret;
+                } else if (is_callable($handler)) {
+                    return $handler($vars);
                 } else {
                     $response->withStatus(500);
                     throw new AppException(500);

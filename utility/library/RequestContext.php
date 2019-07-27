@@ -45,6 +45,11 @@ class RequestContext
      */
     private $param;
 
+    /**
+     * RequestContext constructor.
+     * @param int $fd
+     * @param $data
+     */
     public function __construct(int $fd, $data)
     {
         $this->fd = $fd;
@@ -56,17 +61,17 @@ class RequestContext
      * @param $name
      * @param $value
      */
-    public function set($name, $value)
+    public function setContext($name, $value)
     {
         $this->context[$name] = $value;
     }
 
-    /**
+    /**获取上下文设置的值
      * @param $name
      * @param null $default
      * @return mixed|null
      */
-    public function get($name = null, $default = null)
+    public function getContext($name = null, $default = null)
     {
         if (is_null($name)) {
             return $this->context;
@@ -74,21 +79,33 @@ class RequestContext
         return isset($this->context[$name]) ? $this->context[$name] : $default;
     }
 
+    /**
+     * @return int|null
+     */
     public function getFd(): ?int
     {
         return $this->fd;
     }
 
+    /**
+     * @param $controller
+     */
     public function setController($controller)
     {
         $this->controller = $controller;
     }
 
+    /**
+     * @return string
+     */
     public function getController()
     {
         return $this->controller;
     }
 
+    /**
+     * @param $action
+     */
     public function setAction($action)
     {
         $this->action = $action;
@@ -115,6 +132,9 @@ class RequestContext
         return isset($this->param[$name]) ? $this->param[$name] : $default;
     }
 
+    /**
+     * @return int|mixed
+     */
     public function getCmd()
     {
         return $this->cmd;

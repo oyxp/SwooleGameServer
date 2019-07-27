@@ -28,18 +28,18 @@ trait Response
     public function httpSuccess($data = null, $msg = 'OK', $code = 0)
     {
         return [
-            'o' => $code,
-            'm' => $msg,
-            'd' => $data,
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
         ];
     }
 
     public function httpError($code, $msg = '', $data = null)
     {
         return [
-            'o' => $code,
-            'm' => $msg,
-            'd' => $data,
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
         ];
     }
 }

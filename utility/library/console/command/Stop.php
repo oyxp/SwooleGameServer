@@ -10,6 +10,7 @@ namespace gs\console\command;
 
 
 use gs\Config;
+use gs\helper\TimeHelper;
 use Swoole\Process;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,22 +39,25 @@ class Stop extends Command
         }
         $master_pid = intval(file_get_contents($pid_file));
         //如果进程存在
+        $start_time_milli = TimeHelper::getMilliSecond();
+        $output->writeln('<info>Stopping ...</info>');
         if (Process::kill($master_pid, 0)) {
             Process::kill($master_pid);
             $start_time = time();
             while (true) {
-                usleep(1000);
                 //如果关闭成功
                 if (!Process::kill($master_pid, 0)) {
                     //删除pid文件
-                    file_exists($pid_file) && @unlink($pid_file);
-                    $output->writeln('<info>Server stop at ' . date('Y-m-d H:i:s') . '</info>');
+                    is_file($pid_file) && @unlink($pid_file);
+                    $end_time_milli = TimeHelper::getMilliSecond();
+                    $output->writeln('<info>Done! Server stop at ' . date('Y-m-d H:i:s') . ',cost ' . ($end_time_milli - $start_time_milli) / 1000 . 's.</info>');
                     return true;
                 }
                 if (time() - $start_time > 60) {
                     $output->writeln('<error>Stop server failed.</error>');
                     return false;
                 }
+                usleep(1000);
             }
         }
         $output->writeln('<error> Server is already stop!</error>');

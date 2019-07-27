@@ -4,14 +4,16 @@
 namespace gs;
 
 
-use gs\pool\AbstractPool;
+use gs\cache\Redis;
+use gs\cache\RedisCluster;
+use gs\pool\AbstractChannelPool;
 use traits\Singleton;
 
 /**
  * Class Cache
  * @package gs
  */
-class Cache extends AbstractPool
+class Cache extends AbstractChannelPool
 {
     use Singleton;
 
@@ -28,7 +30,7 @@ class Cache extends AbstractPool
         if (!class_exists($driver)) {
             throw new \RuntimeException('cache driver does not exists.');
         }
-        parent::__construct($driver, $config['min_size'], $config['max_size'], $config);
+        parent::__construct($driver, $config['min_size'], $config['max_size'], $config['max_idel_time'], $config['interval_check_time'], $config);
     }
 
     /**
@@ -40,14 +42,28 @@ class Cache extends AbstractPool
     public function __call($name, $arguments)
     {
         // TODO: Implement __call() method.
+        /** @var RedisCluster $object */
         $object = $this->pop();
+        //如果该对象无效则重新连接
+        if (!$this->isValid($object)) {
+            $object->connect();
+        }
         try {
             $ret = call_user_func_array([$object, $name], $arguments);
             $this->recycle($object);
             return $ret;
-        } catch (\Throwable$throwable) {
+        } catch (\Throwable $throwable) {
             $this->recycle($object);
             throw $throwable;
         }
+    }
+
+    /**
+     * @param Redis|RedisCluster $object
+     * @return bool
+     */
+    public function isValid($object): bool
+    {
+        return $object->isConnected();
     }
 }

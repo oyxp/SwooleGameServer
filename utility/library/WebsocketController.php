@@ -3,6 +3,7 @@
 
 namespace gs;
 
+use Swoole\WebSocket\Server;
 
 class WebsocketController
 {
@@ -10,26 +11,29 @@ class WebsocketController
     /**
      * @var RequestContext
      */
-    private $context;
+    protected $request;
 
-    public function __construct(RequestContext $context)
+    public function __construct(RequestContext $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
     /**
-     * @return RequestContext
+     * @param \Swoole\WebSocket\Server $server
+     * @param int $fd
      */
-    protected function getRequestContext()
-    {
-        return $this->context;
-    }
-
-    public function prepare(\Swoole\WebSocket\Server $server)
+    public function prepare(Server $server, int $fd)
     {
 
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function getUid()
+    {
+        return Session::getUidByFd($this->request->getFd());
+    }
 
     public function sendToUser($uid)
     {

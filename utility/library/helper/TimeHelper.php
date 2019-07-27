@@ -15,6 +15,15 @@ class TimeHelper
     }
 
     /**
+     * @return int
+     */
+    public static function getMillis()
+    {
+        list($time,) = explode(' ', microtime());
+        return intval($time * 1000);
+    }
+
+    /**
      * 返回今日开始和结束的时间戳
      *
      * @return array

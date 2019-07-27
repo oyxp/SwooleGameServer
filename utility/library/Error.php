@@ -42,7 +42,7 @@ class Error
      * @param int $errline
      * @return mixed
      */
-    public static function handle(int $errno, string $errstr, string $errfile = '', int $errline = 0): bool
+    public static function handle(int $errno, string $errstr, string $errfile = null, int $errline = 0): bool
     {
         // TODO: Implement handle() method.
         $msg = " {$errstr} in file {$errfile} at line {$errline},errno = {$errno}";

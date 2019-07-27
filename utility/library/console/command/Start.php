@@ -13,7 +13,9 @@ use gs\Config;
 use gs\Db;
 use gs\Dispatcher;
 use gs\http\Request;
+use gs\Log;
 use gs\RequestContext;
+use gs\swoole\Closure;
 use interfaces\event\CustomEvent;
 use interfaces\InterfaceProcess;
 use Swoole\Coroutine;
@@ -133,7 +135,7 @@ class Start extends Command
             go(function () use ($server, $frame, $config) {
                 //cmd命令格式 {"c":"", "d":{}}  c:命令 d：请求数据
                 $data = CmdParser::decode($frame->data, $config['pkg_decode_func']);
-                if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getDefinitions('command.' . $data['c']))) {
+                if (empty($data) || !isset($data['c']) || false === ($caller = Annotation::getInstance()->getCommand($data['c']))) {
                     $server->push($frame->fd, CmdParser::encode($this->error(
                         -100,
                         $data['c'],
@@ -148,51 +150,82 @@ class Start extends Command
                     Coroutine::getContext()->context = $context;
                     $object = new $caller['class']($context);
                     if (method_exists($object, 'prepare')) {
-                        call_user_func_array([$object, 'prepare'], [$server]);
+                        call_user_func_array([$object, 'prepare'], [$server, $frame->fd]);
                     }
                     $ret = call_user_func([$object, $caller['method']]);
                     $ret['c'] = $data['c'];
-                    $server->push($frame->fd, CmdParser::encode($ret, $config['pkg_encode_func']), $config['opcode']);
+                    if ($server->isEstablished($frame->fd)) {
+                        $server->push($frame->fd, CmdParser::encode($ret, $config['pkg_encode_func']), $config['opcode']);
+                    }
                 } catch (AppException $appException) {
-                    $server->push($frame->fd, CmdParser::encode($this->error(
-                        $appException->getCode(),
-                        $data['c'],
-                        $appException->getMessage(),
-                        $appException->getData()
-                    ), $config['pkg_encode_func']), $config['opcode']);
+                    if ($server->isEstablished($frame->fd)) {
+                        $server->push($frame->fd, CmdParser::encode($this->error(
+                            $appException->getCode(),
+                            $data['c'],
+                            $appException->getMessage(),
+                            $appException->getData()
+                        ), $config['pkg_encode_func']), $config['opcode']);
+                    }
                 } catch (\Throwable $throwable) {
-                    $server->push($frame->fd, CmdParser::encode($this->error(
-                        -100,
-                        $data['c'],
-                        'system error.'
-                    ), $config['pkg_encode_func']), $config['opcode']);
+                    Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                    if ($server->isEstablished($frame->fd)) {
+                        $server->push($frame->fd, CmdParser::encode($this->error(
+                            -107,
+                            $data['c'],
+                            'system error.'
+                        ), $config['pkg_encode_func']), $config['opcode']);
+                    }
                 }
             });
         });
-
+        //当enable_coroutine设置为true时，底层自动在onRequest回调中创建协程，开发者无需自行使用go函数创建协程
         if ($config['enable_http']) {
             Dispatcher::getInstance();
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
-                go(function () use ($request, $response) {
-                    try {
-                        $request = new Request($request);
-                        $response = new \gs\http\Response($response);
-                        $ret = Dispatcher::getInstance()->dispatch($request, $response);
-                        return $response->writeJson($this->httpSuccess($ret));
-                    } catch (AppException $appException) {
-                        return $response->writeJson($this->httpError($appException->getCode(), $appException->getMessage(), $appException->getData()));
-                    } catch (\Throwable $throwable) {
-                        $response->withStatus(500);
-                        return $response->writeJson($this->httpError(-100, $throwable->getMessage()));
+                try {
+                    $request = new Request($request);
+                    $response = new \gs\http\Response($response);
+                    if ($request->server('request_method') === 'OPTIONS') {
+                        $response->getSwooleResponse()->header('Access-Control-Allow-Origin', '*');
+                        $response->getSwooleResponse()->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization');
+                        $response->getSwooleResponse()->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+                        return $response->getSwooleResponse()->end();
                     }
-                });
+                    $ret = Dispatcher::getInstance()->dispatch($request, $response);
+                    return $response->writeJson($this->httpSuccess($ret));
+                } catch (AppException $appException) {
+                    return $response->writeJson($this->httpError($appException->getCode(), $appException->getMessage(), $appException->getData()));
+                } catch (\Throwable $throwable) {
+                    Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                    $response->withStatus(500);
+                    return $response->writeJson($this->httpError(-100, $throwable->getMessage()));
+                }
             });
         }
-        $server->on('task', function ($serv, \Swoole\Server\Task $task) {
-
+        $server->on('task', function (Server $serv, \Swoole\Server\Task $task) {
+            try {
+                if (!is_array($task->data)) {
+                    throw new \RuntimeException('Error data:' . var_export($task->data, true));
+                }
+                list($callback, $params) = $task->data;
+                //如果是闭包，则直接调用返回
+                if ($callback instanceof Closure) {
+                    $ret = call_user_func_array($callback, $params);
+                } else {
+                    $ret = call_user_func_array([$callback, 'handle'], $params);
+                }
+                $task->finish($ret);
+            } catch (\Throwable $throwable) {
+                //todo log
+                Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                $task->finish(false);
+            }
         });
-        $server->on('finish', function (Server $serv, int $task_id, string $data) {
-
+        /**
+         *异步投递task时，onfinish的data参数是 ontask的finish函数调用的结果返回
+         */
+        $server->on('finish', function (Server $serv, int $task_id, $data) {
+            return $data;
         });
         //这里注册其他事件
         $events = Annotation::getInstance()->getDefinitions('swoole_event');
@@ -228,14 +261,15 @@ class Start extends Command
         foreach ($process_classes as $process_class) {
             $class = $process_class['class'];
             $name = $process_class['name'] ?? $class;
+            $co = $process_class['co'] ?? true;
             $ref = new \ReflectionClass($class);
             if ($ref->implementsInterface(InterfaceProcess::class)) {
-                $new_process = new Process(function (Process $process) use ($server, $class, $name) {
+                $new_process = new Process(function (Process $process) use ($server, $class, $name, $co) {
                     if (PHP_OS != 'Darwin') {
                         $process->name($name);
                     }
                     call_user_func_array([$class, 'handle'], [$server, $process]);
-                });
+                }, false, SOCK_DGRAM, $co);
                 $server->addProcess($new_process);
             }
         }
