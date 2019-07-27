@@ -61,6 +61,6 @@ class Index extends WebsocketController
      */
     public function getUid()
     {
-        return $this->success(Session::getUidByFd($this->getRequestContext()->getFd()));
+        return $this->success(Session::getUidByFd($this->request->getFd()));
     }
 }
