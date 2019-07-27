@@ -6,6 +6,7 @@ namespace app\http\controller;
 use app\App;
 use gs\annotation\Route;
 use gs\http\HttpController;
+use gs\swoole\Task;
 use Medoo\Medoo;
 
 class Index extends HttpController
@@ -80,5 +81,13 @@ class Index extends HttpController
         var_dump(App::$swooleServer->worker_id);
         var_dump('cache hash:' . spl_object_hash(cache()));
         return 'cache hash:' . (cache()->set('time', time()));
+    }
+
+    /**
+     * @Route(uri="/task",method="GET")
+     */
+    public function task()
+    {
+        return Task::async('test', ['HI']);
     }
 }

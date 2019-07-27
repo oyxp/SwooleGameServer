@@ -37,4 +37,6 @@ return [
     ],
     'max_size'      => 2,//最大连接数
     'min_size'      => 1,//最小连接数
+    'max_idel_time'       => 60,//最大闲置时间，超过该时间将自动回收
+    'interval_check_time' => 60000,//循环检测时间 ms
 ];

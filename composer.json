@@ -26,7 +26,8 @@
     "ext-json": "*",
     "catfan/medoo": "^1.6",
     "ext-pdo": "*",
-    "ext-swoole": ">=4.4.0"
+    "ext-swoole": ">=4.4.0",
+    "opis/closure": "^3.3"
   },
   "require-dev": {
     "swoole/ide-helper": "@dev"
