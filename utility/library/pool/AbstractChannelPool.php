@@ -143,6 +143,13 @@ abstract class AbstractChannelPool implements InterfacePool
                     $object = $this->pool->pop(0.01);
                     //超过最大等待时间
                     if (time() - $object->lastUseTime > $this->idelTime) {
+                        if (method_exists($object, 'close')) {
+                            try {
+                                call_user_func_array([$object, 'close'], []);
+                            } catch (\Throwable $throwable) {
+
+                            }
+                        }
                         unset($object);
                         $this->createNum--;
                         continue;
@@ -156,7 +163,8 @@ abstract class AbstractChannelPool implements InterfacePool
                 }
                 //判断是否小于最小连接数
                 if ($this->createNum < $this->min) {
-                    for ($i = 0; $i < $this->min - $this->createNum; $i++) {
+                    $need_create_num = $this->min - $this->createNum;
+                    for ($i = 0; $i < $need_create_num; $i++) {
                         $this->push($this->create());
                     }
                 }
