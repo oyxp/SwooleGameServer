@@ -53,7 +53,7 @@ class Stop extends Command
                     $output->writeln('<info>Done! Server stop at ' . date('Y-m-d H:i:s') . ',cost ' . ($end_time_milli - $start_time_milli) / 1000 . 's.</info>');
                     return true;
                 }
-                if (time() - $start_time > 60) {
+                if (time() - $start_time > 120) {
                     $output->writeln('<error>Stop server failed.</error>');
                     return false;
                 }

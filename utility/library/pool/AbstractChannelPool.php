@@ -75,6 +75,9 @@ abstract class AbstractChannelPool implements InterfacePool
      */
     public function create()
     {
+        if ($this->createNum >= $this->max) {
+            return null;
+        }
         $object = new $this->class(...($this->args));
         $object->lastUseTime = time();//最后使用时间
         $this->createNum++;
@@ -86,7 +89,11 @@ abstract class AbstractChannelPool implements InterfacePool
      */
     public function push($object)
     {
-        if ($this->createNum > $this->max) {
+        if (is_null($object)) {
+            return;
+        }
+        $stat = $this->pool->stats();
+        if ($stat['queue_num'] >= $this->max) {
             return;
         }
         $this->pool->push($object);
@@ -95,14 +102,17 @@ abstract class AbstractChannelPool implements InterfacePool
     /**出队：出队时，需要判断下实例是否有效
      * @return mixed
      */
-    public function pop()
+    public function pop($try_times = 3)
     {
-        $object = $this->pool->pop(0.01);
+        $object = $this->pool->pop(0.05);
         if (false === $object) {
+            if ($try_times <= 0) {
+                throw new \RuntimeException('get pool connection timeout!');
+            }
             //没有实例，创建
             if ($this->createNum < $this->max) {
                 $this->push($this->create());
-                return $this->pop();
+                return $this->pop(--$try_times);
             } else {
                 throw new \RuntimeException('Connection pool is full!');
             }
@@ -171,4 +181,20 @@ abstract class AbstractChannelPool implements InterfacePool
             });
         }
     }
+
+    /**
+     * 获取状态
+     *
+     * array(
+     * "consumer_num" => 0, 消费者数量，表示当前通道为空，有N个协程正在等待其他协程调用push方法生产数据
+     * "producer_num" => 1,  生产者数量，表示当前通道已满，有N个协程正在等待其他协程调用pop方法消费数据
+     * "queue_num" => 10   通道中的元素数量
+     * );
+     * @return mixed
+     */
+    public function getPoolStatus()
+    {
+        return $this->pool->stats();
+    }
+
 }
