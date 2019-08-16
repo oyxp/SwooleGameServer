@@ -68,7 +68,7 @@ class Start extends Command
         //设置回调函数
         $this->setServerCallback($server, $config);
         //添加自定义进程
-        $this->addCustomProcess($server);
+        $this->addCustomProcess($server, $config['name']);
         $server->start();
     }
 
@@ -255,12 +255,13 @@ class Start extends Command
      * @param Server $server
      * @throws \ReflectionException
      */
-    protected function addCustomProcess(Server $server)
+    protected function addCustomProcess(Server $server, string $server_name)
     {
         $process_classes = Annotation::getInstance()->getDefinitions('process');
         foreach ($process_classes as $process_class) {
             $class = $process_class['class'];
             $name = $process_class['name'] ?? $class;
+            $name = $server_name . ' ' . $name;
             $co = $process_class['co'] ?? true;
             $ref = new \ReflectionClass($class);
             if ($ref->implementsInterface(InterfaceProcess::class)) {
