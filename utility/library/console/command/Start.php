@@ -167,7 +167,7 @@ class Start extends Command
                         ), $config['pkg_encode_func']), $config['opcode']);
                     }
                 } catch (\Throwable $throwable) {
-                    Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                    Log::error($throwable);
                     if ($server->isEstablished($frame->fd)) {
                         $server->push($frame->fd, CmdParser::encode($this->error(
                             -107,
@@ -196,7 +196,7 @@ class Start extends Command
                 } catch (AppException $appException) {
                     return $response->writeJson($this->httpError($appException->getCode(), $appException->getMessage(), $appException->getData()));
                 } catch (\Throwable $throwable) {
-                    Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                    Log::error($throwable);
                     $response->withStatus(500);
                     return $response->writeJson($this->httpError(-100, $throwable->getMessage()));
                 }
@@ -217,7 +217,7 @@ class Start extends Command
                 $task->finish($ret);
             } catch (\Throwable $throwable) {
                 //todo log
-                Log::error($throwable->getMessage() . ' in file ' . $throwable->getFile() . ' at line ' . $throwable->getLine());
+                Log::error($throwable);
                 $task->finish(false);
             }
         });
