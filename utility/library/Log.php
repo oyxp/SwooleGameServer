@@ -95,13 +95,11 @@ class Log
             //如果log size大于10M，日志轮转
             @rename($save_file, $save_file . '-' . TimeHelper::getMillis());
         }
-        $prefix = date('Y-m-d H:i:s') . ' [' . strtoupper($this->getLevel($level)) . '] ';
+        $prefix = '[' . date('Y-m-d H:i:s') . '][' . strtoupper($this->getLevel($level)) . '] ';
         if ($message instanceof \Throwable) {
             $message = $message->getMessage() . ' in file ' . $message->getFile() . ' at line ' . $message->getLine() . "\n" . $message->getTraceAsString();
-        } else {
-            $message = $prefix . $message;
         }
-        $message .= PHP_EOL;
+        $message = $prefix . $message . PHP_EOL;
         file_put_contents($save_file, $message, FILE_APPEND);
     }
 
