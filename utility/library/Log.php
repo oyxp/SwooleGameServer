@@ -91,7 +91,10 @@ class Log
         $save_file = $dir . $log_file;
         if (!file_exists($dir)) {
             @mkdir($dir, 0777, true);
-        } else if (file_exists($save_file) && filesize($save_file) > $this->config['rotate_size']) {
+        }
+        //清除缓存并再次检查文件大小
+        clearstatcache();
+        if (file_exists($save_file) && filesize($save_file) > $this->config['rotate_size']) {
             //如果log size大于10M，日志轮转
             @rename($save_file, $save_file . '-' . TimeHelper::getMillis());
         }
