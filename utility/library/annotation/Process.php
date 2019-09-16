@@ -36,7 +36,7 @@ class Process
             $this->name = $values['name'];
         }
         if (isset($values['co'])) {
-            $this->co = true;
+            $this->co = $values['co'];
         }
     }
 
