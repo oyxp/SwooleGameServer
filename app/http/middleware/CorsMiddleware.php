@@ -12,7 +12,7 @@ use gs\Http\Request;
 /**
  * Class CorsMiddleware
  * @package app\http\middleware
- * @Middleware(name="cors",weight=11)
+ * @Middleware(name="cors",weight=1)
  */
 class CorsMiddleware implements InterfaceMiddleware
 {
