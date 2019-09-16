@@ -14,6 +14,7 @@ use gs\Db;
 use gs\Dispatcher;
 use gs\http\Request;
 use gs\Log;
+use gs\Middleware;
 use gs\RequestContext;
 use gs\swoole\Closure;
 use interfaces\event\CustomEvent;
@@ -181,15 +182,20 @@ class Start extends Command
         //当enable_coroutine设置为true时，底层自动在onRequest回调中创建协程，开发者无需自行使用go函数创建协程
         if ($config['enable_http']) {
             Dispatcher::getInstance();
+            //中间件初始化
+            Middleware::getInstance();
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
                 try {
                     $request = new Request($request);
                     $response = new \gs\http\Response($response);
-                    if ($request->server('request_method') === 'OPTIONS') {
-                        $response->getSwooleResponse()->header('Access-Control-Allow-Origin', '*');
-                        $response->getSwooleResponse()->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization');
-                        $response->getSwooleResponse()->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-                        return $response->getSwooleResponse()->end();
+                    $middlewares = Middleware::getInstance()->getQueue();
+                    var_dump(spl_object_hash(Middleware::getInstance()));
+                    foreach ($middlewares as $middleware) {
+                        $ret = call_user_func_array([$middleware['obj'], 'handle'], [$request, $response]);
+                        //如果中间件返回值为false，则马上返回
+                        if (false === $ret) {
+                            return $response->writeJson($this->httpSuccess($ret));
+                        }
                     }
                     $ret = Dispatcher::getInstance()->dispatch($request, $response);
                     return $response->writeJson($this->httpSuccess($ret));

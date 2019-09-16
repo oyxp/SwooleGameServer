@@ -8,12 +8,14 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use gs\annotation\Command;
 use gs\annotation\Listener;
+use gs\annotation\Middleware;
 use gs\annotation\Process;
 use gs\annotation\Route;
 use gs\annotation\Task;
 use gs\helper\ComposerHelper;
 use interfaces\event\CustomEvent;
 use interfaces\event\SwooleEvent;
+use interfaces\InterfaceMiddleware;
 use interfaces\InterfaceProcess;
 use interfaces\InterfaceTask;
 use traits\Singleton;
@@ -118,6 +120,13 @@ class Annotation
                     } else if ($anno instanceof Task && $reflectionClass->hasMethod('handle')) {
                         //自定义任务
                         $this->definitions['task'][$anno->getName()] = $reflectionClass->getName();
+                    } else if ($anno instanceof Middleware && $reflectionClass->implementsInterface(InterfaceMiddleware::class)) {
+                        //如果是中间件类注解且实现了中间件接口
+                        $middlewareName = $anno->getName();
+                        $this->definitions['middleware'][$middlewareName] = [
+                            'obj'    => $reflectionClass->newInstance(),
+                            'weight' => $anno->getWeight(),
+                        ];
                     }
                 }
             }
