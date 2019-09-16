@@ -189,7 +189,6 @@ class Start extends Command
                     $request = new Request($request);
                     $response = new \gs\http\Response($response);
                     $middlewares = Middleware::getInstance()->getQueue();
-                    var_dump(spl_object_hash(Middleware::getInstance()));
                     foreach ($middlewares as $middleware) {
                         $ret = call_user_func_array([$middleware['obj'], 'handle'], [$request, $response]);
                         //如果中间件返回值为false，则马上返回
