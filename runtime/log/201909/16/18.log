@@ -1,0 +1,4 @@
+[2019-09-16 18:34:27][ERROR] Return value of app\http\middleware\Test::handle() must be of the type bool, none returned in file /var/www/SwooleGameServer/app/http/middleware/Test.php at line 30
+#0 [internal function]: app\http\middleware\Test->handle(Object(gs\http\Request), Object(gs\http\Response))
+#1 /var/www/SwooleGameServer/utility/library/console/command/Start.php(193): call_user_func_array(Array, Array)
+#2 {main}

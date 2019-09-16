@@ -11,6 +11,7 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
+        '538ca81a9a966a6716601ecf48f4eaef' => __DIR__ . '/..' . '/opis/closure/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -38,12 +39,15 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Service\\' => 26,
             'Symfony\\Component\\Console\\' => 26,
-            'Swoole\\IDEHelper\\' => 17,
         ),
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+        ),
+        'O' => 
+        array (
+            'Opis\\Closure\\' => 13,
         ),
         'M' => 
         array (
@@ -102,10 +106,6 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         array (
             0 => __DIR__ . '/..' . '/symfony/console',
         ),
-        'Swoole\\IDEHelper\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/swoole/ide-helper/src',
-        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -113,6 +113,10 @@ class ComposerStaticInitef3af2e9584d6fb133c017148488167b
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'Opis\\Closure\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/opis/closure/src',
         ),
         'Medoo\\' => 
         array (
