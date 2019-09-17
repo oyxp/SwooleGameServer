@@ -14,6 +14,9 @@
       "interfaces\\": "utility/interfaces",
       "annotation\\": "utility/annotation"
     },
+    "psr-0": {
+      "": "extend/"
+    },
     "files": [
       "app/common.php",
       "utility/helper.php"
