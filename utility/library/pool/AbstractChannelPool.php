@@ -105,9 +105,9 @@ abstract class AbstractChannelPool implements InterfacePool
     /**出队：出队时，需要判断下实例是否有效
      * @return mixed
      */
-    public function pop($try_times = 3)
+    public function pop($try_times = 3, $timeout = 0.05)
     {
-        $object = $this->pool->pop(0.05);
+        $object = $this->pool->pop($timeout);
         if (false === $object) {
             if ($try_times <= 0) {
                 throw new \RuntimeException('get pool connection timeout!');
@@ -115,8 +115,9 @@ abstract class AbstractChannelPool implements InterfacePool
             //没有实例，创建
             if ($this->createNum < $this->max) {
                 $this->push($this->create());
-                return $this->pop(--$try_times);
+                return $this->pop(--$try_times, $timeout);
             } else {
+                Log::error('[' . static::class . "] Connection pool is full! queue stats:" . var_export($this->pool->stats(), true));
                 throw new \RuntimeException('Connection pool is full!');
             }
         }
