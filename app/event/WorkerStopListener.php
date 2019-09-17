@@ -31,6 +31,6 @@ class WorkerStopListener implements OnWorkerStop
     public function handle(Server $server, int $worker_id)
     {
         // TODO: Implement handle() method.
-        var_dump(__METHOD__);
+        var_dump(__METHOD__, $server->taskworker);
     }
 }
