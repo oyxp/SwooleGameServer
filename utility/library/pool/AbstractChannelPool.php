@@ -197,7 +197,11 @@ abstract class AbstractChannelPool implements InterfacePool
      */
     public function getPoolStatus()
     {
-        return $this->pool->stats();
+        $ret = $this->pool->stats();
+        $ret['createdNum'] = $this->createNum;
+        $ret['maxNum'] = $this->max;
+        $ret['minNum'] = $this->min;
+        return $ret;
     }
 
 }
