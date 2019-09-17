@@ -25,7 +25,8 @@ class Model
     public static function getTable()
     {
         if (!isset(self::$tables[static::class])) {
-            self::$tables[static::class] = StringHelper::snake(substr(static::class, strrpos(static::class, '\\') + 1));
+            $class = substr(static::class, strrpos(static::class, '\\') + 1);
+            self::$tables[static::class] = StringHelper::snake(str_replace('Model', '', $class));
         }
         return self::$tables[static::class];
     }
