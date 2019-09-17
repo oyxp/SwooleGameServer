@@ -13,7 +13,11 @@
       "traits\\": "utility/traits",
       "interfaces\\": "utility/interfaces",
       "annotation\\": "utility/annotation"
-    }
+    },
+    "files": [
+      "app/common.php",
+      "utility/helper.php"
+    ]
   },
   "require": {
     "php": ">=7.3",

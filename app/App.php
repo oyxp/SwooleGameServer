@@ -30,10 +30,6 @@ class App
 
     public function __construct()
     {
-        //初始化公共函数库
-        require_once LIB_PATH . 'helper.php';
-        require_once APP_PATH . 'common.php';
-
         //初始化配置
         $this->config = Config::getInstance();
         date_default_timezone_set($this->config->get('default_timezone'));

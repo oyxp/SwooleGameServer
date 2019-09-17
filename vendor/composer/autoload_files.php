@@ -11,4 +11,6 @@ return array(
     '0d59ee240a4cd96ddbb4ff164fccea4d' => $vendorDir . '/symfony/polyfill-php73/bootstrap.php',
     '253c157292f75eb38082b5acb06f3f01' => $vendorDir . '/nikic/fast-route/src/functions.php',
     '538ca81a9a966a6716601ecf48f4eaef' => $vendorDir . '/opis/closure/functions.php',
+    '7e542bb1e8d674038bfc73713699cda4' => $baseDir . '/app/common.php',
+    'd09fff4bb17b68bf32866f6dfe3b6eaa' => $baseDir . '/utility/helper.php',
 );
