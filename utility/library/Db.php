@@ -28,7 +28,7 @@ class Db extends AbstractChannelPool
         $max = $config['max_size'] ?? 100;
         $min = $config['min_size'] ?? 2;
         $idel_time = $config['max_idel_time'] ?? 60;
-        $interval_check_time = $config['interval_check_time'] ?? 60;
+        $interval_check_time = $config['interval_check_time'] ?? 60000;
         unset($config['max_size'], $config['min_size'], $config['max_idel_time'], $config['interval_check_time']);
         parent::__construct(Medoo::class, $min, $max, $idel_time, $interval_check_time, $config);
     }

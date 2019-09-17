@@ -4,6 +4,7 @@
 namespace gs\pool;
 
 
+use gs\Log;
 use interfaces\InterfacePool;
 use Swoole\Coroutine\Channel;
 
@@ -61,13 +62,15 @@ abstract class AbstractChannelPool implements InterfacePool
         $this->min = $min;
         $this->max = $max;
         $this->idelTime = $idelTime;
-        $this->interval_check_time = $interval_check_time;//秒级
+        $this->intervalCheckTime = $interval_check_time;//秒级
         $this->args = $args;
         $this->class = $class;
         //预先创建 $min 个对象
         for ($i = 0; $i < $min; $i++) {
             $this->push($this->create());
         }
+        //定时检测
+        $this->intervalCheck();
     }
 
     /**创建对象
@@ -157,7 +160,7 @@ abstract class AbstractChannelPool implements InterfacePool
                             try {
                                 call_user_func_array([$object, 'close'], []);
                             } catch (\Throwable $throwable) {
-
+                                Log::error($throwable);
                             }
                         }
                         unset($object);

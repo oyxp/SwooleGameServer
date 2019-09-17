@@ -27,6 +27,6 @@ class Test implements InterfaceMiddleware
     {
         // TODO: Implement handle() method.
         var_dump(__METHOD__);
-        return false;
+        return true;
     }
 }
