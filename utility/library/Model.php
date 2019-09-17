@@ -14,12 +14,20 @@ use gs\helper\TimeHelper;
 class Model
 {
     /**
+     * 缓存所有表名
+     * @var array
+     */
+    public static $tables = [];
+
+    /**
      * @return string
      */
     public static function getTable()
     {
-        $class = substr(static::class, strrpos(static::class, '\\') + 1);
-        return StringHelper::snake($class);
+        if (!isset(self::$tables[static::class])) {
+            self::$tables[static::class] = StringHelper::snake(substr(static::class, strrpos(static::class, '\\') + 1));
+        }
+        return self::$tables[static::class];
     }
 
 
