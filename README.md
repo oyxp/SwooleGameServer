@@ -62,3 +62,64 @@
     5、redis、db连接池 
     6、多语种
     7、注解路由、注解task、注解进程、注解websocket命令
+    
+    
+## task组件
+
+- gs\swoole\Task::async($name, array $data, int $taskWorkerId = -1)
+   
+   
+     异步任务，必须设置onfinish回调,返回task_worker_id
+     $name: 可以是定义的task任务名，使用Task注解的name属性定义;也可以是一个闭包函数
+     $data: 调用任务类的handle方法的参数列表；调用闭包的参数列表
+     $taskWorkerId： 指定到哪个task worker执行
+
+- gs\swoole\Task::sync($name, array $data, $timeout = 0.5, int $taskWorkerId = -1)
+
+
+     同步任务，必须设置onfinish回调,返回task_worker_id
+     $name: 可以是定义的task任务名，使用Task注解的name属性定义;也可以是一个闭包函数
+     $data: 调用任务类的handle方法的参数列表；调用闭包的参数列表
+     $taskWorkerId： 指定到哪个task worker执行
+          
+- gs\swoole\Task::asyncMulti(array $tasks, $timeout = 0.5)
+      
+     
+      并发执行多个task异步任务
+      $name:  [ ['任务名|匿名函数', [参数列表] ]
+              必须是一个数组，数组有且只有两个元素，第一个元素必须为任务名或者匿名函数，第二个元素必须为参数列表数组
+      
+- gs\swoole\Task::coMulti(array $tasks, $timeout = 0.5)
+       
+      
+      并发执行Task并进行协程调度 ，任务完成或超时，返回结果数组。结果数组中每个任务结果的顺序与$tasks对应，某个任务执行失败或超时，对应的结果数组项为false
+      $name:  [ ['任务名|匿名函数', [参数列表] ]
+              必须是一个数组，每个元素是一个数组，每个数组有且只有两个元素，第一个元素必须为任务名或者匿名函数，第二个元素必须为参数列表数组
+
+
+使用注解定义task
+
+ ```php
+  <?php
+  
+  
+  namespace app\task;
+  
+  
+  use gs\annotation\Task;
+  
+  /**
+   * Class Test
+   * @package app\task
+   * @Task(name="test")
+   */
+  class Test
+  {
+      //必须要有handle方法
+      public static function handle($hi)
+      {
+          var_dump($hi);
+      }
+  } 
+
+ ```
