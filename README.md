@@ -128,3 +128,41 @@
 
 gs\swoole\Task::async('test',['hi snailZED!']);
  ```
+
+
+## 自定义进程
+> 自定义进程必须要阻塞运行，比如使用while(true)死循环，否则进程一旦退出了，swoole会自动启动一个新的进程，如此反复。
+一般用来做消费者，如rabbitmq消费者，发布订阅模式等等。
+
+- 自定义进程必须使用 `gs\annotation\Process` 注解定义，必须实现接口`interfaces\InterfaceProcess`.
+`name`：指定进程名字，必须唯一，`co`：是否为协程运行，默认为true
+
+```php
+<?php
+
+
+namespace app\process;
+
+
+use gs\annotation\Process;
+use interfaces\InterfaceProcess;
+use Swoole\WebSocket\Server;
+use Swoole\Process as SwooleProcess;
+
+/**
+ * Class CustomProcess
+ * @package app\process
+ * @Process(name="test",co=true)
+ */
+class CustomProcess implements InterfaceProcess
+{
+    public static function handle(Server $server, SwooleProcess $process)
+    {
+        // TODO: Implement handle() method.
+        while (true) {
+            var_dump(__METHOD__);
+            sleep(2);
+        }
+    }
+}
+```
