@@ -155,4 +155,9 @@ class Redis implements InterfaceRedis
         }
         return $connected;
     }
+
+    public function getOriginRedis()
+    {
+        return $this->redis;
+    }
 }
