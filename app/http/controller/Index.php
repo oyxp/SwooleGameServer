@@ -73,15 +73,6 @@ class Index extends HttpController
         return $ret;
     }
 
-    /**
-     * @Route(uri="/cache",method="GET")
-     */
-    public function testCache()
-    {
-        var_dump(App::$swooleServer->worker_id);
-        var_dump('cache hash:' . spl_object_hash(cache()));
-        return 'cache hash:' . (cache()->set('time', time()));
-    }
 
     /**
      * @Route(uri="/task",method="GET")
@@ -89,5 +80,31 @@ class Index extends HttpController
     public function task()
     {
         return Task::async('test', ['HI']);
+    }
+
+    /**
+     * @Route(uri="/cache" ,method="GET")
+     */
+    public function getCacheStat()
+    {
+        return [
+            'status' => cache()->getPoolStatus(),
+            'workId' => App::$swooleServer->worker_pid,
+            'data'   => cache()->keys('*'),
+
+        ];
+    }
+
+    /**
+     * @Route(uri="/db",method="GET")
+     * @return array
+     *
+     */
+    public function getDbStat()
+    {
+        return [
+            'status' => db()->getPoolStatus(),
+            'workId' => App::$swooleServer->worker_pid,
+        ];
     }
 }

@@ -25,6 +25,6 @@ class OnWorkerStart implements \interfaces\event\custom\OnWorkerStart
     public function handle(Server $server, int $worker_id)
     {
         // TODO: Implement handle() method.
-        var_dump('WORKER_START');
+        var_dump('WORKER_START:' . $server->taskworker . ' - ' . $server->worker_pid);
     }
 }

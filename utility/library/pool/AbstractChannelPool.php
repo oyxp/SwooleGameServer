@@ -4,6 +4,7 @@
 namespace gs\pool;
 
 
+use app\App;
 use gs\Log;
 use interfaces\InterfacePool;
 use Swoole\Coroutine\Channel;
@@ -202,7 +203,17 @@ abstract class AbstractChannelPool implements InterfacePool
         $ret['createdNum'] = $this->createNum;
         $ret['maxNum'] = $this->max;
         $ret['minNum'] = $this->min;
+        $ret['workerId'] = App::$swooleServer->worker_pid;
+        $ret['workerRole'] = App::$swooleServer->taskworker ? 'taskWorker' : 'worker';
         return $ret;
     }
 
+    /**
+     * 获取新的实例,不归连接池管理
+     * @return mixed
+     */
+    public function newInstance()
+    {
+        return new $this->class(...($this->args));
+    }
 }
