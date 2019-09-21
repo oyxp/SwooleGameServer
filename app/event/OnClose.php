@@ -6,6 +6,7 @@ namespace app\event;
 
 use gs\annotation\Listener;
 use gs\Session;
+use Swoole\Coroutine;
 use Swoole\WebSocket\Server;
 use interfaces\event\SwooleEvent;
 
@@ -26,7 +27,8 @@ class OnClose implements \interfaces\event\swoole\OnClose
     public function handle(Server $server, int $fd, int $reactorId)
     {
         // TODO: Implement handle() method.
-        var_dump(__METHOD__);
+        var_dump(__METHOD__, 'CLSOE_CID:' . Coroutine::getCid());
+        var_dump(cache()->get('time'));
         Session::closeFd($fd);
     }
 }

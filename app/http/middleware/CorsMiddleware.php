@@ -24,7 +24,7 @@ class CorsMiddleware implements InterfaceMiddleware
      */
     public function handle(Request $request, Response $response): bool
     {
-        var_dump(__METHOD__);
+        //var_dump(__METHOD__);
         // TODO: Implement handle() method.
         if ('OPTIONS' === $request->getMethod()) {
             $this->configResponse($response);

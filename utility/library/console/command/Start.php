@@ -17,6 +17,7 @@ use gs\Log;
 use gs\Middleware;
 use gs\RequestContext;
 use gs\swoole\Closure;
+use gs\swoole\CoroutineContext;
 use interfaces\event\CustomEvent;
 use interfaces\InterfaceProcess;
 use Swoole\Coroutine;
@@ -184,8 +185,12 @@ class Start extends Command
             Dispatcher::getInstance();
             //中间件初始化
             Middleware::getInstance();
+            //协程上下文
+            CoroutineContext::getInstance();
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
+                $cid = Coroutine::getCid();
                 try {
+                    CoroutineContext::getInstance()->add($cid);
                     $request = new Request($request);
                     $response = new \gs\http\Response($response);
                     $middlewares = Middleware::getInstance()->getQueue();
@@ -197,10 +202,15 @@ class Start extends Command
                         }
                     }
                     $ret = Dispatcher::getInstance()->dispatch($request, $response);
+                    //释放绑定的连接
+                    cache()->recycleConnection();
+                    CoroutineContext::getInstance()->delete($cid);
                     return $response->writeJson($this->httpSuccess($ret));
                 } catch (AppException $appException) {
+                    CoroutineContext::getInstance()->delete($cid);
                     return $response->writeJson($this->httpError($appException->getCode(), $appException->getMessage(), $appException->getData()));
                 } catch (\Throwable $throwable) {
+                    CoroutineContext::getInstance()->delete($cid);
                     Log::error($throwable);
                     $response->withStatus(500);
                     return $response->writeJson($this->httpError(-100, $throwable->getMessage()));

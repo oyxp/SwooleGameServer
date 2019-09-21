@@ -26,7 +26,7 @@ class Test implements InterfaceMiddleware
     public function handle(Request $request, Response $response): bool
     {
         // TODO: Implement handle() method.
-        var_dump(__METHOD__);
+        //var_dump(__METHOD__);
         return true;
     }
 }

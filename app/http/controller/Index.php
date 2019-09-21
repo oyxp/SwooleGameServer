@@ -8,6 +8,7 @@ use gs\annotation\Route;
 use gs\http\HttpController;
 use gs\swoole\Task;
 use Medoo\Medoo;
+use Swoole\Coroutine;
 
 class Index extends HttpController
 {
@@ -23,6 +24,20 @@ class Index extends HttpController
             'name' => time()
         ]);
         return $ret;
+    }
+
+    /**
+     * @Route(uri="/test_cache",method="GET")
+     */
+    public function testCache()
+    {
+        $time = time();
+        $cache = cache();
+        var_dump($time, spl_object_hash($cache), $cache->set('time', $time));
+        $cache = cache();
+        var_dump(spl_object_hash($cache), $cache->get('time'));
+        var_dump('CID:' . Coroutine::getCid());
+        return Coroutine::getCid();
     }
 
     /**
