@@ -3,6 +3,7 @@
 
 namespace gs;
 
+use Swoole\Coroutine;
 use Swoole\WebSocket\Server;
 
 class WebsocketController
@@ -38,5 +39,14 @@ class WebsocketController
     public function sendToUser($uid)
     {
 
+    }
+
+    public function __destruct()
+    {
+        // TODO: Implement __destruct() method.
+        //释放绑定的连接
+        $cid = Coroutine::getCid();
+        cache()->recycleConnection($cid);
+        db()->recycleConnection($cid);
     }
 }

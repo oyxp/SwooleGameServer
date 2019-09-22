@@ -5,6 +5,7 @@ namespace gs;
 
 
 use gs\pool\AbstractChannelPool;
+use gs\swoole\CoroutineContext;
 use Medoo\Medoo;
 use Swoole\Coroutine;
 use traits\Singleton;
@@ -53,8 +54,14 @@ class Db extends AbstractChannelPool
      */
     private function callDbMethod($name, $arguments)
     {
+        //1、先判断是否已经有了
+        $cid = Coroutine::getCid();
+        if (CoroutineContext::getInstance()->exists($cid)) {
+            return $this->_callDbApi($cid, $name, $arguments);
+        }
+        //以下是非http和ws的协程
         $object = $this->connections[Coroutine::getCid()] ?? false;
-        if (empty(!$object) && $object instanceof Medoo) {
+        if (!empty($object) && $object instanceof Medoo) {
             return call_user_func_array([$object, $name], $arguments);
         }
         $object = $this->pop();
@@ -63,15 +70,61 @@ class Db extends AbstractChannelPool
             $this->recycle($object);
             return $ret;
         } catch (\Throwable $throwable) {
+            //如果断开连接了，则
             if ($this->isBreak($throwable)) {
                 unset($object);
-                $this->push($this->create());
-                return $this->callDbMethod($name, $arguments);
+                $object = $this->newInstance();
+                $ret = call_user_func_array([$object, $name], $arguments);
+                $this->recycle($object);
+                return $ret;
             }
             $this->recycle($object);
             throw $throwable;
         }
     }
+
+    /**
+     * @param $cid
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     * @throws \Throwable
+     */
+    private function _callDbApi($cid, $name, $arguments)
+    {
+        $object = $this->connections[$cid] ?? false;
+        if (!empty($object) && $object instanceof Medoo) {
+            return call_user_func_array([$object, $name], $arguments);
+        } else {
+            $object = $this->pop();
+            $this->connections[$cid] = $object;
+        }
+        try {
+            $ret = call_user_func_array([$object, $name], $arguments);
+            return $ret;
+        } catch (\Throwable $throwable) {
+            if ($this->isBreak($throwable)) {
+                unset($object);
+                $this->connections[$cid] = $this->newInstance();
+                return $this->_callDbApi($cid, $name, $arguments);
+            }
+            throw $throwable;
+        }
+    }
+
+
+    /**
+     *回收连接
+     */
+    public function recycleConnection($cid)
+    {
+        if (isset($this->connections[$cid])) {
+            $object = $this->connections[$cid];
+            parent::recycle($object);
+            unset($this->connections[$cid]);
+        }
+    }
+
 
     /**判断数据库是否断线
      * @param \Throwable $e

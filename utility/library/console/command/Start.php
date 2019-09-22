@@ -132,6 +132,8 @@ class Start extends Command
             }
         });
 
+        //协程上下文
+        CoroutineContext::getInstance();
         $server->on('message', function (Server $server, Frame $frame) use ($config) {
             //全协程 1、要执行的redis lua脚本、进行备份的数据库命令、当前请求的数据 集群要求lua脚本操作的key必须在同一个槽，可以使用{key}方式手动分配
             go(function () use ($server, $frame, $config) {
@@ -145,6 +147,8 @@ class Start extends Command
                     ), $config['pkg_encode_func']), $config['opcode']);
                     return;
                 }
+                $cid = Coroutine::getCid();
+                CoroutineContext::getInstance()->add($cid);
                 try {
                     $context = new RequestContext($frame->fd, $data);
                     $context->setController($caller['class']);
@@ -156,10 +160,12 @@ class Start extends Command
                     }
                     $ret = call_user_func([$object, $caller['method']]);
                     $ret['c'] = $data['c'];
+                    CoroutineContext::getInstance()->delete($cid);
                     if ($server->isEstablished($frame->fd)) {
                         $server->push($frame->fd, CmdParser::encode($ret, $config['pkg_encode_func']), $config['opcode']);
                     }
                 } catch (AppException $appException) {
+                    CoroutineContext::getInstance()->delete($cid);
                     if ($server->isEstablished($frame->fd)) {
                         $server->push($frame->fd, CmdParser::encode($this->error(
                             $appException->getCode(),
@@ -169,6 +175,7 @@ class Start extends Command
                         ), $config['pkg_encode_func']), $config['opcode']);
                     }
                 } catch (\Throwable $throwable) {
+                    CoroutineContext::getInstance()->delete($cid);
                     Log::error($throwable);
                     if ($server->isEstablished($frame->fd)) {
                         $server->push($frame->fd, CmdParser::encode($this->error(
@@ -185,8 +192,6 @@ class Start extends Command
             Dispatcher::getInstance();
             //中间件初始化
             Middleware::getInstance();
-            //协程上下文
-            CoroutineContext::getInstance();
             $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
                 $cid = Coroutine::getCid();
                 try {
@@ -202,8 +207,6 @@ class Start extends Command
                         }
                     }
                     $ret = Dispatcher::getInstance()->dispatch($request, $response);
-                    //释放绑定的连接
-                    cache()->recycleConnection();
                     CoroutineContext::getInstance()->delete($cid);
                     return $response->writeJson($this->httpSuccess($ret));
                 } catch (AppException $appException) {

@@ -104,9 +104,8 @@ class Cache extends AbstractChannelPool
     /**
      *回收连接
      */
-    public function recycleConnection()
+    public function recycleConnection($cid)
     {
-        $cid = Coroutine::getCid();
         if (isset($this->connections[$cid])) {
             $object = $this->connections[$cid];
             parent::recycle($object);

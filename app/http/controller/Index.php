@@ -5,6 +5,7 @@ namespace app\http\controller;
 
 use app\App;
 use gs\annotation\Route;
+use gs\AppException;
 use gs\http\HttpController;
 use gs\swoole\Task;
 use Medoo\Medoo;
@@ -23,6 +24,7 @@ class Index extends HttpController
             'id'   => time() + mt_rand(0, 999999),
             'name' => time()
         ]);
+        var_dump($db->getPoolStatus());
         return $ret;
     }
 
@@ -38,6 +40,30 @@ class Index extends HttpController
         var_dump(spl_object_hash($cache), $cache->get('time'));
         var_dump('CID:' . Coroutine::getCid());
         return Coroutine::getCid();
+    }
+
+    /**
+     * @Route(uri="/t2",method="GET")
+     */
+    public function testT()
+    {
+        return db()->transaction(function () {
+            db()->insert('user', [
+                'id'   => 1,
+                'name' => 'test1'
+            ]);
+            db()->insert('user', [
+                'id'   => 2,
+                'name' => 'test2'
+            ]);
+
+            db()->update('user', [
+                'name' => 'test user'
+            ], [
+                'id' => 1
+            ]);
+            throw new AppException(1);
+        });
     }
 
     /**

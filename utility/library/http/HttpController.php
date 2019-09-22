@@ -3,6 +3,8 @@
 
 namespace gs\http;
 
+use Swoole\Coroutine;
+
 class HttpController
 {
     /**
@@ -24,5 +26,14 @@ class HttpController
     {
         $this->request = $request;
         $this->response = $response;
+    }
+
+    public function __destruct()
+    {
+        // TODO: Implement __destruct() method.
+        //释放绑定的连接
+        $cid = Coroutine::getCid();
+        cache()->recycleConnection($cid);
+        db()->recycleConnection($cid);
     }
 }
