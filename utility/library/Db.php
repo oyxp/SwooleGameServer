@@ -60,7 +60,7 @@ class Db extends AbstractChannelPool
             return $this->_callDbApi($cid, $name, $arguments);
         }
         //以下是非http和ws的协程
-        $object = $this->connections[Coroutine::getCid()] ?? false;
+        $object = $this->connections[$cid] ?? false;
         if (!empty($object) && $object instanceof Medoo) {
             return call_user_func_array([$object, $name], $arguments);
         }
@@ -76,6 +76,7 @@ class Db extends AbstractChannelPool
                 $object = $this->newInstance();
                 $ret = call_user_func_array([$object, $name], $arguments);
                 $this->recycle($object);
+                Log::error($throwable);
                 return $ret;
             }
             $this->recycle($object);
@@ -106,6 +107,7 @@ class Db extends AbstractChannelPool
             if ($this->isBreak($throwable)) {
                 unset($object);
                 $this->connections[$cid] = $this->newInstance();
+                Log::error($throwable);
                 return $this->_callDbApi($cid, $name, $arguments);
             }
             throw $throwable;
@@ -170,30 +172,35 @@ class Db extends AbstractChannelPool
      */
     public function transaction(callable $callable)
     {
-        $object = $this->pop();
-        $this->connections[Coroutine::getCid()] = $object;
+        $cid = Coroutine::getCid();
+        if (!isset($this->connections[$cid])) {
+            $object = $this->pop();
+            $this->connections[$cid] = $object;
+        } else {
+            $object = $this->connections[$cid];
+        }
         try {
             $object->pdo->beginTransaction();
             $ret = $callable();
             $object->pdo->commit();
             $this->recycle($object);
-            unset($this->connections[Coroutine::getCid()]);
+            unset($this->connections[$cid]);
             return $ret;
         } catch (AppException $appException) {
             $object->pdo->rollBack();
             $this->recycle($object);
-            unset($this->connections[Coroutine::getCid()]);
+            unset($this->connections[$cid]);
             throw $appException;
         } catch (\Throwable $throwable) {
             if ($this->isBreak($throwable)) {
                 unset($object);
-                unset($this->connections[Coroutine::getCid()]);
+                unset($this->connections[$cid]);
                 $this->push($this->create());
                 return $this->transaction($callable);
             }
             $object->pdo->rollBack();
             $this->recycle($object);
-            unset($this->connections[Coroutine::getCid()]);
+            unset($this->connections[$cid]);
             throw $throwable;
         }
     }
